@@ -316,7 +316,7 @@
     text-transform: uppercase;
   }
 
-  /* ── 日付指定エリア ── */
+  /* --- */
   .date-override-bar {
     display: flex;
     align-items: center;
@@ -508,7 +508,7 @@
   .modal-handle { width: 40px; height: 4px; background: var(--line2); border-radius: 99px; margin: 0 auto 20px; }
   .modal-title { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 600; margin-bottom: 16px; text-align: center; }
 
-  /* 日付指定モーダル */
+  /* date modal */
   .date-modal-grid { display: grid; gap: 12px; }
   .date-modal-row { display: flex; align-items: center; gap: 12px; }
   .date-modal-label { font-size: 13px; color: var(--text2); min-width: 80px; }
@@ -602,7 +602,7 @@
 <body>
 <div id="app">
 
-  <!-- ══════════════════════════ SETTINGS SCREEN ══ -->
+  <!-- SETTINGS SCREEN -->
 
   <div class="screen" id="screen-settings">
     <div class="topbar">
@@ -659,7 +659,7 @@
 
   </div>
 
-  <!-- ══════════════════════════ RECORD SCREEN ════ -->
+  <!-- RECORD SCREEN -->
 
   <div class="screen" id="screen-record">
     <div class="topbar">
@@ -681,21 +681,21 @@
     <div class="dt-weekday" id="rec-weekday"></div>
   </div>
 
-  <!-- 日付指定バー（指定時のみ表示） -->
+  <!-- date override bar -->
   <div id="date-override-bar" style="display:none" class="date-override-bar">
     <span class="date-override-icon">📅</span>
     <span class="date-override-text" id="date-override-text"></span>
     <span class="date-override-clear" onclick="clearDateOverride()" title="指定解除">✕</span>
   </div>
 
-  <!-- 日付指定ボタン -->
+  <!-- date button -->
   <button class="btn btn-date" onclick="showModal('date-modal')" style="margin-bottom:14px">
     📅 日付を指定する
   </button>
 
   <div id="metric-inputs"></div>
 
-  <!-- BMI 自動計算表示（有効時） -->
+  <!-- bmi auto display -->
   <div id="bmi-auto-display" style="display:none" class="bmi-auto-card">
     <div class="metric-icon bg-bmi">📊</div>
     <div class="metric-input-right">
@@ -723,7 +723,7 @@
 
   </div>
 
-  <!-- ══════════════════════════ CHART SCREEN ═════ -->
+  <!-- CHART SCREEN -->
 
   <div class="screen" id="screen-chart">
     <div class="topbar">
@@ -743,11 +743,11 @@
 
 </div>
 
-<!-- Toast -->
+<!-- toast -->
 
 <div id="toast"></div>
 
-<!-- ── 日付指定モーダル ── -->
+<!-- date modal -->
 
 <div class="modal-overlay" id="date-modal">
   <div class="modal-sheet">
@@ -774,7 +774,7 @@
   </div>
 </div>
 
-<!-- ── Export Modal ── -->
+<!-- export modal -->
 
 <div class="modal-overlay" id="export-modal">
   <div class="modal-sheet">
@@ -792,7 +792,7 @@
   </div>
 </div>
 
-<!-- ── Delete Confirm Modal ── -->
+<!-- delete modal -->
 
 <div class="modal-overlay" id="clear-modal">
   <div class="modal-sheet">
@@ -807,11 +807,11 @@
 </div>
 
 <script>
-// ═══════════════════════════════════════════════
+// ---
 // DATA & STATE
-// ═══════════════════════════════════════════════
+// ---
 
-// BMIは autoCalc:true — 入力欄なし、自動計算して記録
+// BMI: autoCalc=true, no input field
 const METRICS = [
   { key: 'weight', name: '体重',     unit: 'kg',   icon: '⚖️', color: '#a594ff', cls: 'c-weight', bg: 'bg-weight', defaultOn: true,  autoCalc: false },
   { key: 'fat',    name: '体脂肪率', unit: '%',    icon: '🔥', color: '#ff9f43', cls: 'c-fat',    bg: 'bg-fat',    defaultOn: false, autoCalc: false },
@@ -854,9 +854,9 @@ function save() {
   localStorage.setItem('bml_records', JSON.stringify(records));
 }
 
-// ═══════════════════════════════════════════════
+// ---
 // NAVIGATION
-// ═══════════════════════════════════════════════
+// ---
 
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -879,9 +879,9 @@ function saveSettings() {
   toast('設定を保存しました ✓');
 }
 
-// ═══════════════════════════════════════════════
+// ---
 // SERVICE WORKER
-// ═══════════════════════════════════════════════
+// ---
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
@@ -889,9 +889,9 @@ if ('serviceWorker' in navigator) {
   });
 }
 
-// ═══════════════════════════════════════════════
+// ---
 // CLOCK
-// ═══════════════════════════════════════════════
+// ---
 
 function updateClock() {
   const now = new Date();
@@ -910,9 +910,9 @@ function updateClock() {
 function startClock() { clearInterval(clockInterval); updateClock(); clockInterval = setInterval(updateClock, 1000); }
 function stopClock()  { clearInterval(clockInterval); }
 
-// ═══════════════════════════════════════════════
+// ---
 // DATE OVERRIDE
-// ═══════════════════════════════════════════════
+// ---
 
 function toggleTimeInput() {
   const checked = document.getElementById('override-time-check').checked;
@@ -956,9 +956,9 @@ function clearDateOverride() {
   document.getElementById('date-override-bar').style.display = 'none';
 }
 
-// ═══════════════════════════════════════════════
+// ---
 // SETTINGS SCREEN
-// ═══════════════════════════════════════════════
+// ---
 
 function renderSettings() {
   document.getElementById('s-height').value      = settings.height || '';
@@ -967,7 +967,7 @@ function renderSettings() {
   document.getElementById('s-goal-muscle').value = settings.goalMuscle || '';
   document.getElementById('s-goal-bmi').value    = settings.goalBmi || '';
 
-  // BMI は autoCalc なので設定トグルには表示するが「自動計算」と明示
+  // BMI is autoCalc - shown in toggles
   const wrap = document.getElementById('metric-toggles');
   wrap.innerHTML = METRICS.map(m => `
     <div class="toggle-row">
@@ -985,17 +985,17 @@ function toggleMetric(key) {
   document.getElementById('tog-' + key).classList.toggle('on', settings.metrics[key]);
 }
 
-// ═══════════════════════════════════════════════
+// ---
 // RECORD SCREEN
-// ═══════════════════════════════════════════════
+// ---
 
 function renderRecord() {
-  // 今日の日付をデフォルトにセット
+  // set today as default date
   const today = new Date().toISOString().split('T')[0];
   const dateInput = document.getElementById('override-date');
   if (dateInput && !dateInput.value) dateInput.value = today;
 
-  // 手動入力が必要な指標のみ表示（BMI は除く）
+  // manual input metrics only (exclude autoCalc)
   const enabled = METRICS.filter(m => settings.metrics[m.key] && !m.autoCalc);
   const wrap = document.getElementById('metric-inputs');
   wrap.innerHTML = enabled.map(m => `
@@ -1014,7 +1014,7 @@ function renderRecord() {
     </div>
   `).join('');
 
-  // BMI 自動計算表示エリア
+  // BMI auto calc display area
   const bmiEnabled = settings.metrics['bmi'];
   document.getElementById('bmi-auto-display').style.display = bmiEnabled ? '' : 'none';
   if (bmiEnabled) updateBmiDisplay();
@@ -1100,12 +1100,12 @@ function goalBar(name, cur, goal, diff, prog, unit) {
     </div>`;
 }
 
-// ═══════════════════════════════════════════════
+// ---
 // SAVE RECORD
-// ═══════════════════════════════════════════════
+// ---
 
 function saveRecord() {
-  // 日時の決定
+  // determine datetime
   let ts, date, datetime;
   if (dateOverride) {
     ts       = dateOverride.ts;
@@ -1121,7 +1121,7 @@ function saveRecord() {
   const rec = { ts, date, datetime };
   let hasData = false;
 
-  // 手動入力データ
+  // manual input data
   METRICS.filter(m => settings.metrics[m.key] && !m.autoCalc).forEach(m => {
     const val = parseFloat(document.getElementById('inp-' + m.key)?.value);
     if (!isNaN(val)) { rec[m.key] = val; hasData = true; }
@@ -1129,13 +1129,13 @@ function saveRecord() {
 
   if (!hasData) return;
 
-  // BMI 自動計算
+  // BMI auto calc
   if (settings.metrics['bmi']) {
     const bmi = calcBmi();
     if (bmi !== null) {
       rec['bmi'] = bmi;
     } else {
-      // 身長または体重がなければBMIは記録しない（仕様通り）
+      // skip BMI if no height or weight
     }
   }
 
@@ -1143,7 +1143,7 @@ function saveRecord() {
   save();
   toast('記録しました ✓');
 
-  // クリア
+  // clear
   METRICS.forEach(m => { const el = document.getElementById('inp-' + m.key); if (el) el.value = ''; });
   clearDateOverride();
   checkRecordBtn();
@@ -1152,15 +1152,15 @@ function saveRecord() {
   setTimeout(() => goChart(), 600);
 }
 
-// ═══════════════════════════════════════════════
+// ---
 // CHART SCREEN
-// ═══════════════════════════════════════════════
+// ---
 
 function renderChart() {
   Object.values(chartInstances).forEach(c => { try { c.destroy(); } catch(e){} });
   chartInstances = {};
 
-  // グラフに表示する指標：手動入力 + BMI（有効な場合）
+  // metrics for chart
   const enabled = METRICS.filter(m => settings.metrics[m.key]);
   const content = document.getElementById('chart-content');
 
@@ -1363,9 +1363,9 @@ function toggleChartVisibility(key) {
   }
 }
 
-// ═══════════════════════════════════════════════
+// ---
 // EXPORT
-// ═══════════════════════════════════════════════
+// ---
 
 function getVisibleMetrics() {
   return METRICS.filter(m => settings.metrics[m.key] && chartVisibility[m.key]);
@@ -1422,9 +1422,9 @@ function clearAllData() {
   renderChart();
 }
 
-// ═══════════════════════════════════════════════
+// ---
 // MODAL / TOAST
-// ═══════════════════════════════════════════════
+// ---
 
 function showModal(id) { document.getElementById(id).classList.add('show'); }
 function closeModal(id) { document.getElementById(id).classList.remove('show'); }
@@ -1440,9 +1440,9 @@ function toast(msg) {
   toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
 }
 
-// ═══════════════════════════════════════════════
+// ---
 // INIT
-// ═══════════════════════════════════════════════
+// ---
 
 load();
 if (!settings.initialized) { renderSettings(); showScreen('settings'); }
