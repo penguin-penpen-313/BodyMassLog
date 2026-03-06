@@ -965,7 +965,7 @@ function renderSettings() {
   document.getElementById('s-goal-bmi').value = settings.goalBmi || '';
 
   const wrap = document.getElementById('metric-toggles');
-  wrap.innerHTML = METRICS.map(m => `
+  wrap.innerHTML = METRICS.map(m => '
     <div class="toggle-row">
       <div class="toggle-label">
         <span class="toggle-name">${m.icon} ${m.name}</span>
@@ -973,7 +973,7 @@ function renderSettings() {
       </div>
       <div class="toggle ${settings.metrics[m.key] ? 'on' : ''}" id="tog-${m.key}" onclick="toggleMetric('${m.key}')"></div>
     </div>
-  `).join('');
+  ').join('');
 }
 
 function toggleMetric(key) {
@@ -989,7 +989,7 @@ function toggleMetric(key) {
 function renderRecord() {
   const enabled = METRICS.filter(m => settings.metrics[m.key]);
   const wrap = document.getElementById('metric-inputs');
-  wrap.innerHTML = enabled.map(m => `
+  wrap.innerHTML = enabled.map(m => '
     <div class="metric-input-card" id="mic-${m.key}">
       <div class="metric-icon ${m.bg}">${m.icon}</div>
       <div class="metric-input-right">
@@ -1003,7 +1003,7 @@ function renderRecord() {
         </div>
       </div>
     </div>
-  `).join('');
+  ').join('');
 
   renderGoalProgress();
 }
@@ -1197,21 +1197,21 @@ function buildStatsHtml(enabled) {
   const last = records[records.length - 1];
   const chips = enabled.map(m => {
     const v = last[m.key];
-    return v != null ? `
+    return v != null ? '
       <div class="stat-chip">
         <div class="stat-chip-val ${m.cls}">${v}${m.unit}</div>
         <div class="stat-chip-label">${m.name}</div>
       </div>
-    ` : '';
+    ' : '';
   }).join('');
 
   const lastDate = new Date(last.ts);
-  return `
+  return '
     <div class="card" style="margin-bottom:12px">
       <div class="card-label">最新の記録 — ${lastDate.toLocaleDateString('ja-JP')}</div>
       <div class="stats-row">${chips}</div>
     </div>
-  `;
+  ';
 }
 
 function buildCharts(enabled, mode) {
@@ -1296,7 +1296,7 @@ function buildNDayCharts(enabled, data) {
       data: {
         labels,
         datasets: [{
-          label: `${m.name}（日平均）`,
+          label: '${m.name}（日平均）',
           data: vals,
           backgroundColor: m.color + '55',
           borderColor: m.color,
@@ -1325,7 +1325,7 @@ function chartOptions(label, unit) {
         bodyColor: '#e8e8f0',
         padding: 10,
         callbacks: {
-          label: ctx => ` ${ctx.formattedValue}${unit}`
+          label: ctx => ' ${ctx.formattedValue}${unit}'
         }
       }
     },
