@@ -752,7 +752,7 @@
     </div>
     <div class="content">
 
-```
+'''
   <div class="datetime-block">
     <div class="dt-date" id="rec-date"></div>
     <div class="dt-time" id="rec-time"></div>
@@ -774,7 +774,7 @@
   </div>
   <div style="height:32px"></div>
 </div>
-```
+'''
 
   </div>
 
@@ -1046,7 +1046,7 @@ function renderGoalProgress() {
 function goalBar(name, cur, goal, diff, prog, unit) {
   const sign = diff > 0 ? '+' : '';
   const color = Math.abs(diff) < 1 ? '#4ecca3' : '#a594ff';
-  return `
+  return '
     <div style="margin-bottom:14px">
       <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px">
         <span style="font-size:12px;color:var(--text2)">${name}</span>
@@ -1055,7 +1055,7 @@ function goalBar(name, cur, goal, diff, prog, unit) {
       <div class="goal-bar-wrap"><div class="goal-bar" style="width:${prog}%;background:${color}"></div></div>
       <div class="goal-label"><span>現在 ${cur}${unit}</span><span>目標 ${goal}${unit}</span></div>
     </div>
-  `;
+  ';
 }
 
 function getLastRecord() {
@@ -1110,13 +1110,13 @@ function renderChart() {
   const content = document.getElementById('chart-content');
 
   if (!records.length) {
-    content.innerHTML = `
+    content.innerHTML = '
       <div class="empty-state">
         <div class="empty-state-icon">📭</div>
         <div class="empty-state-text">まだ記録がありません<br>最初のデータを記録しましょう</div>
       </div>
       <button class="btn btn-primary" onclick="goRecord()" style="margin-top:8px">データを記録する</button>
-    `;
+    ';
     return;
   }
 
@@ -1125,7 +1125,7 @@ function renderChart() {
 
   // N-day selector
   // Chart toggle list
-  const togglesHtml = enabled.map(m => `
+  const togglesHtml = enabled.map(m => '
     <div class="chart-toggle-row">
       <div class="chart-toggle-left">
         <div class="chart-label-dot" style="background:${m.color}"></div>
@@ -1133,9 +1133,9 @@ function renderChart() {
       </div>
       <div class="toggle ${chartVisibility[m.key] ? 'on' : ''}" id="cv-${m.key}" onclick="toggleChartVisibility('${m.key}')"></div>
     </div>
-  `).join('');
+  ').join('');
 
-  content.innerHTML = `
+  content.innerHTML = '
     ${statsHtml}
 
     <div class="card" style="margin-bottom:12px">
@@ -1163,7 +1163,7 @@ function renderChart() {
     </div>
 
     <div id="charts-area">
-      ${enabled.map(m => `
+      ${enabled.map(m => '
         <div class="card chart-card" id="chart-card-${m.key}" style="${chartVisibility[m.key] ? '' : 'display:none'}">
           <div class="section-title">
             <span style="color:${m.color}">${m.icon} ${m.name}</span>
@@ -1173,7 +1173,7 @@ function renderChart() {
             <canvas id="chart-${m.key}"></canvas>
           </div>
         </div>
-      `).join('')}
+      ').join('')}
     </div>
 
     <div style="height:12px"></div>
@@ -1184,7 +1184,7 @@ function renderChart() {
     </div>
     <button class="btn btn-danger btn-sm" onclick="showModal('clear-modal')" style="margin-top:10px;width:100%">⚠️ 全データを削除</button>
     <div style="height:40px"></div>
-  `;
+  ';
 
   currentChartTab = 'all';
   buildCharts(enabled, 'all');
