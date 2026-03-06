@@ -7,10 +7,10 @@
 <meta name="theme-color" content="#0a0a0f">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="BodyLog">
+<meta name="apple-mobile-web-app-title" content="BodyMassLog">
 <meta name="description" content="体重・体組成を記録・分析するアプリ">
 <link rel="manifest" href="manifest.json">
-<title>BodyLog</title>
+<title>BodyMassLog</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Syne:wght@400;500;600;700;800&family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet">
@@ -59,7 +59,6 @@
     overflow: hidden;
   }
 
-  /* ── SCREENS ── */
   .screen {
     position: absolute;
     inset: 0;
@@ -77,7 +76,6 @@
     transform: translateY(0);
   }
 
-  /* ── TOPBAR ── */
   .topbar {
     display: flex;
     align-items: center;
@@ -93,19 +91,12 @@
   .topbar-logo {
     font-family: 'Syne', sans-serif;
     font-weight: 800;
-    font-size: 22px;
+    font-size: 20px;
     letter-spacing: -0.5px;
     background: linear-gradient(135deg, var(--accent2), var(--green));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-  }
-  .topbar-title {
-    font-family: 'Syne', sans-serif;
-    font-weight: 600;
-    font-size: 16px;
-    color: var(--text);
-    letter-spacing: 0.5px;
   }
   .topbar-subtitle {
     font-family: 'DM Mono', monospace;
@@ -130,7 +121,6 @@
   .icon-btn:hover { background: var(--bg4); border-color: var(--line2); }
   .icon-btn svg { width: 18px; height: 18px; color: var(--text2); }
 
-  /* ── SCROLL CONTENT ── */
   .content {
     flex: 1;
     overflow-y: auto;
@@ -141,7 +131,6 @@
   .content::-webkit-scrollbar-track { background: transparent; }
   .content::-webkit-scrollbar-thumb { background: var(--line2); border-radius: 99px; }
 
-  /* ── CARDS ── */
   .card {
     background: var(--bg2);
     border: 1px solid var(--line);
@@ -158,7 +147,6 @@
     margin-bottom: 14px;
   }
 
-  /* ── FORM ELEMENTS ── */
   .field-group { margin-bottom: 16px; }
   .field-label {
     font-size: 12px;
@@ -192,15 +180,7 @@
     box-shadow: 0 0 0 3px rgba(123,110,246,0.15);
   }
   .input::placeholder { color: var(--text3); }
-  .input-large {
-    font-size: 32px;
-    font-weight: 300;
-    text-align: center;
-    padding: 16px;
-    letter-spacing: -1px;
-  }
 
-  /* ── TOGGLE ── */
   .toggle-row {
     display: flex;
     align-items: center;
@@ -242,7 +222,6 @@
   }
   .toggle.on::after { transform: translateX(18px); }
 
-  /* ── BUTTONS ── */
   .btn {
     width: 100%;
     padding: 15px;
@@ -287,29 +266,27 @@
     border: 1px solid rgba(255,107,138,0.3);
   }
   .btn-danger:hover { background: rgba(255,107,138,0.2); }
-  .btn-sm {
-    padding: 8px 14px;
-    font-size: 12px;
-    width: auto;
-    border-radius: 8px;
-  }
+  .btn-sm { padding: 8px 14px; font-size: 12px; width: auto; border-radius: 8px; }
   .btn-green {
     background: linear-gradient(135deg, #3db894, #2a9d8f);
     color: #fff;
     box-shadow: 0 4px 20px rgba(78,204,163,0.3);
   }
   .btn-green:hover { transform: translateY(-1px); box-shadow: 0 6px 24px rgba(78,204,163,0.45); }
-  .btn-row {
-    display: grid;
-    gap: 10px;
-    margin-top: 12px;
+  .btn-date {
+    background: var(--bg3);
+    color: var(--accent2);
+    border: 1px solid rgba(123,110,246,0.35);
+    font-size: 13px;
+    padding: 10px 14px;
   }
+  .btn-date:hover { background: rgba(123,110,246,0.1); }
+  .btn-row { display: grid; gap: 10px; margin-top: 12px; }
   .btn-row-2 { grid-template-columns: 1fr 1fr; }
 
-  /* ── DATETIME DISPLAY ── */
   .datetime-block {
     text-align: center;
-    padding: 24px 0 16px;
+    padding: 20px 0 12px;
   }
   .dt-date {
     font-family: 'DM Mono', monospace;
@@ -339,7 +316,33 @@
     text-transform: uppercase;
   }
 
-  /* ── METRIC INPUT ── */
+  /* ── 日付指定エリア ── */
+  .date-override-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(123,110,246,0.08);
+    border: 1px solid rgba(123,110,246,0.25);
+    border-radius: var(--r2);
+    padding: 10px 14px;
+    margin-bottom: 12px;
+  }
+  .date-override-icon { font-size: 16px; }
+  .date-override-text {
+    flex: 1;
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    color: var(--accent2);
+  }
+  .date-override-clear {
+    font-size: 18px;
+    color: var(--text3);
+    cursor: pointer;
+    line-height: 1;
+    padding: 2px 4px;
+  }
+  .date-override-clear:hover { color: var(--red); }
+
   .metric-input-card {
     background: var(--bg2);
     border: 1px solid var(--line);
@@ -364,11 +367,7 @@
   }
   .metric-input-right { flex: 1; }
   .metric-input-name { font-size: 12px; color: var(--text2); margin-bottom: 4px; }
-  .metric-input-field {
-    display: flex;
-    align-items: baseline;
-    gap: 6px;
-  }
+  .metric-input-field { display: flex; align-items: baseline; gap: 6px; }
   .metric-input-field input {
     background: transparent;
     border: none;
@@ -390,12 +389,26 @@
     white-space: nowrap;
   }
 
-  /* ── CHART AREA ── */
-  .chart-container {
-    position: relative;
-    height: 200px;
-    margin: 12px 0 0;
+  /* BMI auto display */
+  .bmi-auto-card {
+    background: rgba(96,180,255,0.06);
+    border: 1px solid rgba(96,180,255,0.2);
+    border-radius: var(--r);
+    padding: 14px 20px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
   }
+  .bmi-auto-val {
+    font-family: 'DM Mono', monospace;
+    font-size: 28px;
+    color: var(--blue);
+    flex: 1;
+  }
+  .bmi-auto-label { font-size: 11px; color: var(--text3); margin-top: 2px; }
+
+  .chart-container { position: relative; height: 200px; margin: 12px 0 0; }
   .chart-toggle-row {
     display: flex;
     align-items: center;
@@ -404,23 +417,13 @@
     border-bottom: 1px solid var(--line);
   }
   .chart-toggle-row:last-child { border-bottom: none; }
-  .chart-label-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    flex-shrink: 0;
-  }
-  .chart-toggle-left {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
+  .chart-label-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .chart-toggle-left { display: flex; align-items: center; gap: 10px; }
   .chart-toggle-name { font-size: 13px; color: var(--text); }
 
-  /* ── STATS ROW ── */
   .stats-row {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(85px, 1fr));
     gap: 8px;
     margin-bottom: 12px;
   }
@@ -431,19 +434,9 @@
     padding: 12px 10px;
     text-align: center;
   }
-  .stat-chip-val {
-    font-family: 'DM Mono', monospace;
-    font-size: 18px;
-    color: var(--text);
-    line-height: 1;
-    margin-bottom: 4px;
-  }
-  .stat-chip-label {
-    font-size: 10px;
-    color: var(--text3);
-  }
+  .stat-chip-val { font-family: 'DM Mono', monospace; font-size: 17px; color: var(--text); line-height: 1; margin-bottom: 4px; }
+  .stat-chip-label { font-size: 10px; color: var(--text3); }
 
-  /* ── N-DAY SELECTOR ── */
   .n-selector {
     display: flex;
     align-items: center;
@@ -456,29 +449,19 @@
   }
   .n-selector-label { font-size: 12px; color: var(--text2); flex: 1; }
   .n-btn {
-    width: 30px;
-    height: 30px;
+    width: 30px; height: 30px;
     border-radius: 8px;
     background: var(--bg4);
     border: 1px solid var(--line2);
     color: var(--text);
     font-size: 18px;
     cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: flex; align-items: center; justify-content: center;
     transition: all .15s;
   }
   .n-btn:hover { background: var(--accent); border-color: var(--accent); }
-  .n-val {
-    font-family: 'DM Mono', monospace;
-    font-size: 20px;
-    color: var(--accent2);
-    min-width: 32px;
-    text-align: center;
-  }
+  .n-val { font-family: 'DM Mono', monospace; font-size: 20px; color: var(--accent2); min-width: 32px; text-align: center; }
 
-  /* ── TOAST ── */
   #toast {
     position: fixed;
     bottom: 32px;
@@ -497,12 +480,8 @@
     box-shadow: var(--shadow);
     pointer-events: none;
   }
-  #toast.show {
-    opacity: 1;
-    transform: translateX(-50%) translateY(0);
-  }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-  /* ── MODAL ── */
   .modal-overlay {
     position: fixed;
     inset: 0;
@@ -526,27 +505,32 @@
     transition: transform .3s cubic-bezier(.4,0,.2,1);
   }
   .modal-overlay.show .modal-sheet { transform: translateY(0); }
-  .modal-handle {
-    width: 40px;
-    height: 4px;
-    background: var(--line2);
-    border-radius: 99px;
-    margin: 0 auto 20px;
-  }
-  .modal-title {
-    font-family: 'Syne', sans-serif;
-    font-size: 16px;
-    font-weight: 600;
-    margin-bottom: 16px;
-    text-align: center;
-  }
+  .modal-handle { width: 40px; height: 4px; background: var(--line2); border-radius: 99px; margin: 0 auto 20px; }
+  .modal-title { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 600; margin-bottom: 16px; text-align: center; }
 
-  /* ── MISC ── */
-  .divider {
-    height: 1px;
-    background: var(--line);
-    margin: 16px 0;
+  /* 日付指定モーダル */
+  .date-modal-grid { display: grid; gap: 12px; }
+  .date-modal-row { display: flex; align-items: center; gap: 12px; }
+  .date-modal-label { font-size: 13px; color: var(--text2); min-width: 80px; }
+  .date-modal-input {
+    flex: 1;
+    background: var(--bg3);
+    border: 1px solid var(--line);
+    border-radius: var(--r2);
+    padding: 10px 12px;
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 15px;
+    outline: none;
+    appearance: none;
+    -webkit-appearance: none;
+    color-scheme: dark;
   }
+  .date-modal-input:focus { border-color: var(--accent); }
+  .time-check-row { display: flex; align-items: center; gap: 10px; padding: 4px 0; }
+  .time-check-row label { font-size: 13px; color: var(--text2); cursor: pointer; }
+  input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--accent); cursor: pointer; }
+
   .section-title {
     font-family: 'Syne', sans-serif;
     font-size: 13px;
@@ -554,9 +538,7 @@
     color: var(--text2);
     letter-spacing: 0.5px;
     margin-bottom: 10px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
+    display: flex; align-items: center; gap: 8px;
   }
   .badge {
     background: rgba(123,110,246,0.2);
@@ -566,15 +548,10 @@
     font-size: 10px;
     font-family: 'DM Mono', monospace;
   }
-  .empty-state {
-    text-align: center;
-    padding: 40px 20px;
-    color: var(--text3);
-  }
+  .empty-state { text-align: center; padding: 40px 20px; color: var(--text3); }
   .empty-state-icon { font-size: 48px; margin-bottom: 12px; }
   .empty-state-text { font-size: 14px; }
 
-  /* Colors for metrics */
   .c-weight { color: var(--accent2); }
   .c-fat { color: var(--orange); }
   .c-muscle { color: var(--green); }
@@ -586,51 +563,18 @@
   .bg-bmi { background: rgba(96,180,255,0.15); }
   .bg-bmr { background: rgba(255,209,102,0.15); }
 
-  .settings-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-  }
+  .settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   .settings-grid .field-group { margin-bottom: 0; }
 
-  .record-count {
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    color: var(--text3);
-    padding: 0 4px;
-  }
+  .record-count { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text3); padding: 0 4px; }
 
-  /* Progress toward goal */
-  .goal-bar-wrap {
-    background: var(--bg3);
-    border-radius: 99px;
-    height: 4px;
-    margin-top: 6px;
-    overflow: hidden;
-  }
-  .goal-bar {
-    height: 100%;
-    border-radius: 99px;
-    background: linear-gradient(90deg, var(--accent), var(--green));
-    transition: width .6s cubic-bezier(.4,0,.2,1);
-  }
-  .goal-label {
-    display: flex;
-    justify-content: space-between;
-    font-family: 'DM Mono', monospace;
-    font-size: 10px;
-    color: var(--text3);
-    margin-top: 4px;
-  }
+  .goal-bar-wrap { background: var(--bg3); border-radius: 99px; height: 4px; margin-top: 6px; overflow: hidden; }
+  .goal-bar { height: 100%; border-radius: 99px; background: linear-gradient(90deg, var(--accent), var(--green)); transition: width .6s cubic-bezier(.4,0,.2,1); }
+  .goal-label { display: flex; justify-content: space-between; font-family: 'DM Mono', monospace; font-size: 10px; color: var(--text3); margin-top: 4px; }
 
-  /* Pulse dot for live time */
   .live-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: var(--green);
-    display: inline-block;
-    margin-right: 6px;
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--green); display: inline-block; margin-right: 6px;
     animation: pulse 2s infinite;
   }
   @keyframes pulse {
@@ -638,7 +582,6 @@
     50% { opacity: .4; transform: scale(0.7); }
   }
 
-  /* Tab bar for charts */
   .tab-bar {
     display: flex;
     background: var(--bg3);
@@ -648,54 +591,35 @@
     border: 1px solid var(--line);
   }
   .tab-item {
-    flex: 1;
-    padding: 7px 4px;
-    text-align: center;
-    font-size: 11px;
-    color: var(--text2);
-    cursor: pointer;
-    border-radius: 6px;
-    transition: all .2s;
+    flex: 1; padding: 7px 4px; text-align: center; font-size: 11px;
+    color: var(--text2); cursor: pointer; border-radius: 6px; transition: all .2s;
     font-family: 'DM Mono', monospace;
   }
-  .tab-item.active {
-    background: var(--bg);
-    color: var(--accent2);
-    border: 1px solid var(--line2);
-  }
+  .tab-item.active { background: var(--bg); color: var(--accent2); border: 1px solid var(--line2); }
 </style>
 
 </head>
 <body>
 <div id="app">
 
-  <!-- ═══════════════════════════════════ SETTINGS SCREEN ══ -->
+  <!-- ══════════════════════════ SETTINGS SCREEN ══ -->
 
   <div class="screen" id="screen-settings">
     <div class="topbar">
       <div>
-        <div class="topbar-logo">BodyLog</div>
+        <div class="topbar-logo">BodyMassLog</div>
         <div class="topbar-subtitle">SETTINGS</div>
       </div>
       <div style="width:38px"></div>
     </div>
-    <div class="content" id="settings-content">
+    <div class="content">
 
+```
   <div class="card">
     <div class="card-label">プロフィール</div>
-    <div class="settings-grid">
-      <div class="field-group">
-        <div class="field-label">身長 <span class="field-unit">cm</span></div>
-        <input class="input" type="number" id="s-height" placeholder="170" inputmode="decimal">
-      </div>
-      <div class="field-group">
-        <div class="field-label">性別</div>
-        <select class="input" id="s-gender" style="padding:11px 14px">
-          <option value="">未設定</option>
-          <option value="male">男性</option>
-          <option value="female">女性</option>
-        </select>
-      </div>
+    <div class="field-group" style="max-width:160px">
+      <div class="field-label">身長 <span class="field-unit">cm</span></div>
+      <input class="input" type="number" id="s-height" placeholder="170" inputmode="decimal">
     </div>
   </div>
 
@@ -723,9 +647,7 @@
 
   <div class="card">
     <div class="card-label">記録するデータ</div>
-    <div id="metric-toggles">
-      <!-- rendered by JS -->
-    </div>
+    <div id="metric-toggles"></div>
   </div>
 
   <button class="btn btn-primary" onclick="saveSettings()" style="margin-top:4px">
@@ -733,32 +655,57 @@
   </button>
   <div style="height:32px"></div>
 </div>
+```
 
   </div>
 
-  <!-- ═══════════════════════════════════ RECORD SCREEN ═════ -->
+  <!-- ══════════════════════════ RECORD SCREEN ════ -->
 
   <div class="screen" id="screen-record">
     <div class="topbar">
-      <div class="topbar-logo">BodyLog</div>
+      <div class="topbar-logo">BodyMassLog</div>
       <div style="flex:1"></div>
       <button class="icon-btn" onclick="goSettings()" title="設定">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-          <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
         </svg>
       </button>
     </div>
     <div class="content">
 
-
+```
   <div class="datetime-block">
     <div class="dt-date" id="rec-date"></div>
     <div class="dt-time" id="rec-time"></div>
     <div class="dt-weekday" id="rec-weekday"></div>
   </div>
 
-  <div id="metric-inputs">
-    <!-- rendered by JS -->
+  <!-- 日付指定バー（指定時のみ表示） -->
+  <div id="date-override-bar" style="display:none" class="date-override-bar">
+    <span class="date-override-icon">📅</span>
+    <span class="date-override-text" id="date-override-text"></span>
+    <span class="date-override-clear" onclick="clearDateOverride()" title="指定解除">✕</span>
+  </div>
+
+  <!-- 日付指定ボタン -->
+  <button class="btn btn-date" onclick="showModal('date-modal')" style="margin-bottom:14px">
+    📅 日付を指定する
+  </button>
+
+  <div id="metric-inputs"></div>
+
+  <!-- BMI 自動計算表示（有効時） -->
+  <div id="bmi-auto-display" style="display:none" class="bmi-auto-card">
+    <div class="metric-icon bg-bmi">📊</div>
+    <div class="metric-input-right">
+      <div class="metric-input-name c-bmi">BMI（自動計算）</div>
+      <div class="metric-input-field">
+        <span class="bmi-auto-val" id="bmi-auto-val">- - -</span>
+        <span class="metric-input-unit"></span>
+      </div>
+      <div class="bmi-auto-label" id="bmi-auto-label"></div>
+    </div>
   </div>
 
   <div id="goal-progress" style="display:none" class="card">
@@ -772,35 +719,60 @@
   </div>
   <div style="height:32px"></div>
 </div>
+```
 
   </div>
 
-  <!-- ═══════════════════════════════════ CHART SCREEN ══════ -->
+  <!-- ══════════════════════════ CHART SCREEN ═════ -->
 
   <div class="screen" id="screen-chart">
     <div class="topbar">
       <div>
-        <div class="topbar-logo">BodyLog</div>
+        <div class="topbar-logo">BodyMassLog</div>
         <div class="topbar-subtitle">ANALYTICS</div>
       </div>
-      <div style="display:flex;gap:8px">
-        <button class="icon-btn" onclick="goSettings()" title="設定">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-            <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-          </svg>
-        </button>
-      </div>
+      <button class="icon-btn" onclick="goSettings()" title="設定">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+      </button>
     </div>
-    <div class="content" id="chart-content">
-      <!-- rendered by JS -->
-    </div>
+    <div class="content" id="chart-content"></div>
   </div>
 
 </div>
 
-<!-- ── Toast ── -->
+<!-- Toast -->
 
 <div id="toast"></div>
+
+<!-- ── 日付指定モーダル ── -->
+
+<div class="modal-overlay" id="date-modal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">📅 日付を指定する</div>
+    <div class="date-modal-grid">
+      <div class="date-modal-row">
+        <span class="date-modal-label">日付</span>
+        <input type="date" class="date-modal-input" id="override-date">
+      </div>
+      <div class="time-check-row">
+        <input type="checkbox" id="override-time-check" onchange="toggleTimeInput()">
+        <label for="override-time-check">時間も指定する</label>
+      </div>
+      <div class="date-modal-row" id="override-time-row" style="display:none">
+        <span class="date-modal-label">時間</span>
+        <input type="time" class="date-modal-input" id="override-time">
+      </div>
+    </div>
+    <div class="btn-row" style="margin-top:20px">
+      <button class="btn btn-primary" onclick="applyDateOverride()">この日付で記録する</button>
+      <button class="btn btn-secondary" onclick="closeModal('date-modal')">キャンセル</button>
+    </div>
+  </div>
+</div>
 
 <!-- ── Export Modal ── -->
 
@@ -835,137 +807,172 @@
 </div>
 
 <script>
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════
 // DATA & STATE
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════
 
+// BMIは autoCalc:true — 入力欄なし、自動計算して記録
 const METRICS = [
-  { key: 'weight',  name: '体重',     unit: 'kg',   icon: '⚖️',  color: '#a594ff', cls: 'c-weight', bg: 'bg-weight', defaultOn: true  },
-  { key: 'fat',     name: '体脂肪率', unit: '%',    icon: '🔥',  color: '#ff9f43', cls: 'c-fat',    bg: 'bg-fat',    defaultOn: false },
-  { key: 'muscle',  name: '筋肉量',   unit: 'kg',   icon: '💪',  color: '#4ecca3', cls: 'c-muscle', bg: 'bg-muscle', defaultOn: false },
-  { key: 'bmi',     name: 'BMI',      unit: '',     icon: '📊',  color: '#60b4ff', cls: 'c-bmi',    bg: 'bg-bmi',    defaultOn: false },
-  { key: 'bmr',     name: '基礎代謝', unit: 'kcal', icon: '⚡',  color: '#ffd166', cls: 'c-bmr',    bg: 'bg-bmr',    defaultOn: false },
+  { key: 'weight', name: '体重',     unit: 'kg',   icon: '⚖️', color: '#a594ff', cls: 'c-weight', bg: 'bg-weight', defaultOn: true,  autoCalc: false },
+  { key: 'fat',    name: '体脂肪率', unit: '%',    icon: '🔥', color: '#ff9f43', cls: 'c-fat',    bg: 'bg-fat',    defaultOn: false, autoCalc: false },
+  { key: 'muscle', name: '筋肉量',   unit: 'kg',   icon: '💪', color: '#4ecca3', cls: 'c-muscle', bg: 'bg-muscle', defaultOn: false, autoCalc: false },
+  { key: 'bmi',    name: 'BMI',      unit: '',     icon: '📊', color: '#60b4ff', cls: 'c-bmi',    bg: 'bg-bmi',    defaultOn: false, autoCalc: true  },
+  { key: 'bmr',    name: '基礎代謝', unit: 'kcal', icon: '⚡', color: '#ffd166', cls: 'c-bmr',    bg: 'bg-bmr',    defaultOn: false, autoCalc: false },
 ];
 
 const WEEKDAYS = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
 const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const BMI_LABELS = [
+  { max: 18.5, label: '低体重', color: '#60b4ff' },
+  { max: 25.0, label: '普通体重', color: '#4ecca3' },
+  { max: 30.0, label: '肥満(1度)', color: '#ffd166' },
+  { max: 35.0, label: '肥満(2度)', color: '#ff9f43' },
+  { max: Infinity, label: '肥満(3度以上)', color: '#ff6b8a' },
+];
 
 let settings = {
-  height: null, gender: null,
+  height: null,
   goalWeight: null, goalFat: null, goalMuscle: null, goalBmi: null,
   metrics: { weight: true, fat: false, muscle: false, bmi: false, bmr: false },
   initialized: false
 };
-let records = []; // [{ts, date, weight, fat, muscle, bmi, bmr}]
+let records = [];
 let chartInstances = {};
 let chartVisibility = {};
 let nDays = 7;
 let currentScreen = '';
 let clockInterval = null;
+let dateOverride = null; // { ts, date, datetime, displayText }
 
-// ── Load / Save ──
 function load() {
-  try { settings = JSON.parse(localStorage.getItem('bl_settings')) || settings; } catch(e){}
-  try { records = JSON.parse(localStorage.getItem('bl_records')) || []; } catch(e){}
+  try { settings = JSON.parse(localStorage.getItem('bml_settings')) || settings; } catch(e){}
+  try { records = JSON.parse(localStorage.getItem('bml_records')) || []; } catch(e){}
   METRICS.forEach(m => { if (chartVisibility[m.key] === undefined) chartVisibility[m.key] = true; });
 }
 function save() {
-  localStorage.setItem('bl_settings', JSON.stringify(settings));
-  localStorage.setItem('bl_records', JSON.stringify(records));
+  localStorage.setItem('bml_settings', JSON.stringify(settings));
+  localStorage.setItem('bml_records', JSON.stringify(records));
 }
 
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════
 // NAVIGATION
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════
 
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById('screen-' + id).classList.add('active');
   currentScreen = id;
 }
-
-function goSettings() {
-  renderSettings();
-  showScreen('settings');
-}
-function goRecord() {
-  renderRecord();
-  showScreen('record');
-  startClock();
-}
-function goChart() {
-  renderChart();
-  showScreen('chart');
-  stopClock();
-}
+function goSettings() { stopClock(); renderSettings(); showScreen('settings'); }
+function goRecord()   { renderRecord(); showScreen('record'); startClock(); }
+function goChart()    { renderChart(); showScreen('chart'); stopClock(); }
 
 function saveSettings() {
-  settings.height = parseFloat(document.getElementById('s-height').value) || null;
-  settings.gender = document.getElementById('s-gender').value || null;
+  settings.height     = parseFloat(document.getElementById('s-height').value) || null;
   settings.goalWeight = parseFloat(document.getElementById('s-goal-weight').value) || null;
-  settings.goalFat = parseFloat(document.getElementById('s-goal-fat').value) || null;
+  settings.goalFat    = parseFloat(document.getElementById('s-goal-fat').value) || null;
   settings.goalMuscle = parseFloat(document.getElementById('s-goal-muscle').value) || null;
-  settings.goalBmi = parseFloat(document.getElementById('s-goal-bmi').value) || null;
+  settings.goalBmi    = parseFloat(document.getElementById('s-goal-bmi').value) || null;
   settings.initialized = true;
   save();
   goRecord();
   toast('設定を保存しました ✓');
 }
 
-function goSettingsFromChart() { stopClock(); goSettings(); }
+// ═══════════════════════════════════════════════
+// SERVICE WORKER
+// ═══════════════════════════════════════════════
 
-// ── Service Worker ──
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js').catch(err => {
-      console.warn('SW registration failed:', err);
-    });
+    navigator.serviceWorker.register('./sw.js').catch(() => {});
   });
 }
 
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════
 // CLOCK
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════
 
 function updateClock() {
   const now = new Date();
-  const h = String(now.getHours()).padStart(2,'0');
-  const m = String(now.getMinutes()).padStart(2,'0');
-  const d = now.getDate();
+  const h  = String(now.getHours()).padStart(2,'0');
+  const m  = String(now.getMinutes()).padStart(2,'0');
+  const d  = now.getDate();
   const mo = MONTHS[now.getMonth()];
   const yr = now.getFullYear();
-
   const timeEl = document.getElementById('rec-time');
   const dateEl = document.getElementById('rec-date');
-  const wdEl = document.getElementById('rec-weekday');
+  const wdEl   = document.getElementById('rec-weekday');
   if (timeEl) timeEl.textContent = `${h}:${m}`;
   if (dateEl) dateEl.textContent = `${yr}  ${mo}  ${String(d).padStart(2,'0')}`;
-  if (wdEl) wdEl.innerHTML = `<span class="live-dot"></span>${WEEKDAYS[now.getDay()]}`;
+  if (wdEl)   wdEl.innerHTML = `<span class="live-dot"></span>${WEEKDAYS[now.getDay()]}`;
 }
-function startClock() {
-  clearInterval(clockInterval);
-  updateClock();
-  clockInterval = setInterval(updateClock, 1000);
-}
-function stopClock() { clearInterval(clockInterval); }
+function startClock() { clearInterval(clockInterval); updateClock(); clockInterval = setInterval(updateClock, 1000); }
+function stopClock()  { clearInterval(clockInterval); }
 
-// ═══════════════════════════════════════════════════════
-// SETTINGS SCREEN RENDER
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════
+// DATE OVERRIDE
+// ═══════════════════════════════════════════════
+
+function toggleTimeInput() {
+  const checked = document.getElementById('override-time-check').checked;
+  document.getElementById('override-time-row').style.display = checked ? '' : 'none';
+}
+
+function applyDateOverride() {
+  const dateVal = document.getElementById('override-date').value;
+  if (!dateVal) { toast('日付を選択してください'); return; }
+
+  const timeChecked = document.getElementById('override-time-check').checked;
+  const timeVal = timeChecked ? document.getElementById('override-time').value : '';
+
+  let dt;
+  if (timeVal) {
+    dt = new Date(`${dateVal}T${timeVal}:00`);
+  } else {
+    dt = new Date(`${dateVal}T00:00:00`);
+  }
+
+  const displayTime = timeVal ? timeVal : '00:00';
+  const [y, mo, d] = dateVal.split('-');
+  const displayText = `${y}年${parseInt(mo)}月${parseInt(d)}日 ${displayTime}`;
+
+  dateOverride = {
+    ts: dt.getTime(),
+    date: dateVal,
+    datetime: dt.toLocaleString('ja-JP'),
+    displayText
+  };
+
+  document.getElementById('date-override-text').textContent = `📅 ${displayText} として記録`;
+  document.getElementById('date-override-bar').style.display = '';
+
+  closeModal('date-modal');
+  toast('日付を指定しました');
+}
+
+function clearDateOverride() {
+  dateOverride = null;
+  document.getElementById('date-override-bar').style.display = 'none';
+}
+
+// ═══════════════════════════════════════════════
+// SETTINGS SCREEN
+// ═══════════════════════════════════════════════
 
 function renderSettings() {
-  document.getElementById('s-height').value = settings.height || '';
-  document.getElementById('s-gender').value = settings.gender || '';
+  document.getElementById('s-height').value      = settings.height || '';
   document.getElementById('s-goal-weight').value = settings.goalWeight || '';
-  document.getElementById('s-goal-fat').value = settings.goalFat || '';
+  document.getElementById('s-goal-fat').value    = settings.goalFat || '';
   document.getElementById('s-goal-muscle').value = settings.goalMuscle || '';
-  document.getElementById('s-goal-bmi').value = settings.goalBmi || '';
+  document.getElementById('s-goal-bmi').value    = settings.goalBmi || '';
 
+  // BMI は autoCalc なので設定トグルには表示するが「自動計算」と明示
   const wrap = document.getElementById('metric-toggles');
   wrap.innerHTML = METRICS.map(m => `
     <div class="toggle-row">
       <div class="toggle-label">
-        <span class="toggle-name">${m.icon} ${m.name}</span>
+        <span class="toggle-name">${m.icon} ${m.name}${m.autoCalc ? ' <span style="font-size:10px;color:var(--blue)">(自動計算)</span>' : ''}</span>
         <span class="toggle-desc ${m.cls}">${m.unit ? m.unit : '指数'}</span>
       </div>
       <div class="toggle ${settings.metrics[m.key] ? 'on' : ''}" id="tog-${m.key}" onclick="toggleMetric('${m.key}')"></div>
@@ -975,16 +982,21 @@ function renderSettings() {
 
 function toggleMetric(key) {
   settings.metrics[key] = !settings.metrics[key];
-  const el = document.getElementById('tog-' + key);
-  el.classList.toggle('on', settings.metrics[key]);
+  document.getElementById('tog-' + key).classList.toggle('on', settings.metrics[key]);
 }
 
-// ═══════════════════════════════════════════════════════
-// RECORD SCREEN RENDER
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════
+// RECORD SCREEN
+// ═══════════════════════════════════════════════
 
 function renderRecord() {
-  const enabled = METRICS.filter(m => settings.metrics[m.key]);
+  // 今日の日付をデフォルトにセット
+  const today = new Date().toISOString().split('T')[0];
+  const dateInput = document.getElementById('override-date');
+  if (dateInput && !dateInput.value) dateInput.value = today;
+
+  // 手動入力が必要な指標のみ表示（BMI は除く）
+  const enabled = METRICS.filter(m => settings.metrics[m.key] && !m.autoCalc);
   const wrap = document.getElementById('metric-inputs');
   wrap.innerHTML = enabled.map(m => `
     <div class="metric-input-card" id="mic-${m.key}">
@@ -994,7 +1006,7 @@ function renderRecord() {
         <div class="metric-input-field">
           <input type="number" inputmode="decimal" placeholder="- - -"
             id="inp-${m.key}"
-            oninput="checkRecordBtn()"
+            oninput="onMetricInput()"
             style="color:${m.color}">
           <span class="metric-input-unit">${m.unit}</span>
         </div>
@@ -1002,11 +1014,50 @@ function renderRecord() {
     </div>
   `).join('');
 
+  // BMI 自動計算表示エリア
+  const bmiEnabled = settings.metrics['bmi'];
+  document.getElementById('bmi-auto-display').style.display = bmiEnabled ? '' : 'none';
+  if (bmiEnabled) updateBmiDisplay();
+
   renderGoalProgress();
+  checkRecordBtn();
+}
+
+function onMetricInput() {
+  if (settings.metrics['bmi']) updateBmiDisplay();
+  checkRecordBtn();
+}
+
+function calcBmi() {
+  if (!settings.height) return null;
+  const weightEl = document.getElementById('inp-weight');
+  if (!weightEl) return null;
+  const w = parseFloat(weightEl.value);
+  if (isNaN(w) || w <= 0) return null;
+  const hm = settings.height / 100;
+  return Math.round((w / (hm * hm)) * 10) / 10;
+}
+
+function updateBmiDisplay() {
+  const bmi = calcBmi();
+  const valEl   = document.getElementById('bmi-auto-val');
+  const labelEl = document.getElementById('bmi-auto-label');
+  if (!valEl) return;
+  if (bmi === null) {
+    valEl.textContent = '- - -';
+    labelEl.textContent = settings.height ? '体重を入力すると計算されます' : '設定で身長を登録してください';
+    valEl.style.color = 'var(--text3)';
+  } else {
+    const cat = BMI_LABELS.find(c => bmi < c.max);
+    valEl.textContent = bmi;
+    valEl.style.color = cat.color;
+    labelEl.textContent = cat.label;
+    labelEl.style.color = cat.color;
+  }
 }
 
 function checkRecordBtn() {
-  const enabled = METRICS.filter(m => settings.metrics[m.key]);
+  const enabled = METRICS.filter(m => settings.metrics[m.key] && !m.autoCalc);
   const anyFilled = enabled.some(m => {
     const el = document.getElementById('inp-' + m.key);
     return el && el.value.trim() !== '';
@@ -1017,7 +1068,7 @@ function checkRecordBtn() {
 function renderGoalProgress() {
   const gp = document.getElementById('goal-progress');
   const gi = document.getElementById('goal-progress-inner');
-  const last = getLastRecord();
+  const last = records.length ? records[records.length - 1] : null;
   if (!last) { gp.style.display = 'none'; return; }
 
   let html = '';
@@ -1031,13 +1082,8 @@ function renderGoalProgress() {
     const prog = Math.max(0, Math.min(100, 100 - Math.abs(diff) * 3));
     html += goalBar('体脂肪率', last.fat, settings.goalFat, diff, prog, '%');
   }
-
-  if (html) {
-    gi.innerHTML = html;
-    gp.style.display = '';
-  } else {
-    gp.style.display = 'none';
-  }
+  if (html) { gi.innerHTML = html; gp.style.display = ''; }
+  else gp.style.display = 'none';
 }
 
 function goalBar(name, cur, goal, diff, prog, unit) {
@@ -1051,58 +1097,70 @@ function goalBar(name, cur, goal, diff, prog, unit) {
       </div>
       <div class="goal-bar-wrap"><div class="goal-bar" style="width:${prog}%;background:${color}"></div></div>
       <div class="goal-label"><span>現在 ${cur}${unit}</span><span>目標 ${goal}${unit}</span></div>
-    </div>
-  `;
+    </div>`;
 }
 
-function getLastRecord() {
-  if (!records.length) return null;
-  return records[records.length - 1];
-}
-
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════
 // SAVE RECORD
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════
 
 function saveRecord() {
-  const now = new Date();
-  const rec = {
-    ts: now.getTime(),
-    date: now.toISOString().split('T')[0],
-    datetime: now.toLocaleString('ja-JP'),
-  };
+  // 日時の決定
+  let ts, date, datetime;
+  if (dateOverride) {
+    ts       = dateOverride.ts;
+    date     = dateOverride.date;
+    datetime = dateOverride.datetime;
+  } else {
+    const now = new Date();
+    ts       = now.getTime();
+    date     = now.toISOString().split('T')[0];
+    datetime = now.toLocaleString('ja-JP');
+  }
+
+  const rec = { ts, date, datetime };
   let hasData = false;
-  METRICS.forEach(m => {
-    if (settings.metrics[m.key]) {
-      const val = parseFloat(document.getElementById('inp-' + m.key)?.value);
-      if (!isNaN(val)) { rec[m.key] = val; hasData = true; }
-    }
+
+  // 手動入力データ
+  METRICS.filter(m => settings.metrics[m.key] && !m.autoCalc).forEach(m => {
+    const val = parseFloat(document.getElementById('inp-' + m.key)?.value);
+    if (!isNaN(val)) { rec[m.key] = val; hasData = true; }
   });
+
   if (!hasData) return;
+
+  // BMI 自動計算
+  if (settings.metrics['bmi']) {
+    const bmi = calcBmi();
+    if (bmi !== null) {
+      rec['bmi'] = bmi;
+    } else {
+      // 身長または体重がなければBMIは記録しない（仕様通り）
+    }
+  }
 
   records.push(rec);
   save();
   toast('記録しました ✓');
 
-  // Clear inputs
-  METRICS.forEach(m => {
-    const el = document.getElementById('inp-' + m.key);
-    if (el) el.value = '';
-  });
-  document.getElementById('btn-record').disabled = true;
+  // クリア
+  METRICS.forEach(m => { const el = document.getElementById('inp-' + m.key); if (el) el.value = ''; });
+  clearDateOverride();
+  checkRecordBtn();
+  if (settings.metrics['bmi']) updateBmiDisplay();
 
   setTimeout(() => goChart(), 600);
 }
 
-// ═══════════════════════════════════════════════════════
-// CHART SCREEN RENDER
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════
+// CHART SCREEN
+// ═══════════════════════════════════════════════
 
 function renderChart() {
-  // Destroy old charts
   Object.values(chartInstances).forEach(c => { try { c.destroy(); } catch(e){} });
   chartInstances = {};
 
+  // グラフに表示する指標：手動入力 + BMI（有効な場合）
   const enabled = METRICS.filter(m => settings.metrics[m.key]);
   const content = document.getElementById('chart-content');
 
@@ -1112,40 +1170,31 @@ function renderChart() {
         <div class="empty-state-icon">📭</div>
         <div class="empty-state-text">まだ記録がありません<br>最初のデータを記録しましょう</div>
       </div>
-      <button class="btn btn-primary" onclick="goRecord()" style="margin-top:8px">データを記録する</button>
-    `;
+      <button class="btn btn-primary" onclick="goRecord()" style="margin-top:8px">データを記録する</button>`;
     return;
   }
 
-  // Stats summary
-  const statsHtml = buildStatsHtml(enabled);
-
-  // N-day selector
-  // Chart toggle list
+  const statsHtml   = buildStatsHtml(enabled);
   const togglesHtml = enabled.map(m => `
     <div class="chart-toggle-row">
       <div class="chart-toggle-left">
         <div class="chart-label-dot" style="background:${m.color}"></div>
-        <span class="chart-toggle-name">${m.icon} ${m.name}</span>
+        <span class="chart-toggle-name">${m.icon} ${m.name}${m.autoCalc ? ' <span style="font-size:10px;opacity:.6">(自動)</span>' : ''}</span>
       </div>
       <div class="toggle ${chartVisibility[m.key] ? 'on' : ''}" id="cv-${m.key}" onclick="toggleChartVisibility('${m.key}')"></div>
-    </div>
-  `).join('');
+    </div>`).join('');
 
   content.innerHTML = `
     ${statsHtml}
-
     <div class="card" style="margin-bottom:12px">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
         <div class="card-label" style="margin-bottom:0">グラフ表示</div>
         <span class="record-count">${records.length} 件</span>
       </div>
-
       <div class="tab-bar" id="chart-tabs">
         <div class="tab-item active" onclick="switchChartTab('all',this)">全期間</div>
         <div class="tab-item" onclick="switchChartTab('n',this)">直近 n 日</div>
       </div>
-
       <div id="n-selector" style="display:none">
         <div class="n-selector">
           <span class="n-selector-label">直近</span>
@@ -1155,10 +1204,8 @@ function renderChart() {
           <span class="n-selector-label" style="flex:none">日間の平均</span>
         </div>
       </div>
-
       ${togglesHtml}
     </div>
-
     <div id="charts-area">
       ${enabled.map(m => `
         <div class="card chart-card" id="chart-card-${m.key}" style="${chartVisibility[m.key] ? '' : 'display:none'}">
@@ -1166,22 +1213,16 @@ function renderChart() {
             <span style="color:${m.color}">${m.icon} ${m.name}</span>
             ${m.unit ? `<span class="badge">${m.unit}</span>` : ''}
           </div>
-          <div class="chart-container">
-            <canvas id="chart-${m.key}"></canvas>
-          </div>
-        </div>
-      `).join('')}
+          <div class="chart-container"><canvas id="chart-${m.key}"></canvas></div>
+        </div>`).join('')}
     </div>
-
     <div style="height:12px"></div>
-
     <button class="btn btn-green" onclick="showModal('export-modal')">結果を出力</button>
     <div class="btn-row" style="margin-top:10px">
       <button class="btn btn-secondary" onclick="goRecord()">データを記録する</button>
     </div>
     <button class="btn btn-danger btn-sm" onclick="showModal('clear-modal')" style="margin-top:10px;width:100%">⚠️ 全データを削除</button>
-    <div style="height:40px"></div>
-  `;
+    <div style="height:40px"></div>`;
 
   currentChartTab = 'all';
   buildCharts(enabled, 'all');
@@ -1191,39 +1232,29 @@ let currentChartTab = 'all';
 
 function buildStatsHtml(enabled) {
   if (!records.length) return '';
-  const last = records[records.length - 1];
+  const last = [...records].sort((a,b) => b.ts - a.ts)[0];
   const chips = enabled.map(m => {
     const v = last[m.key];
     return v != null ? `
       <div class="stat-chip">
         <div class="stat-chip-val ${m.cls}">${v}${m.unit}</div>
         <div class="stat-chip-label">${m.name}</div>
-      </div>
-    ` : '';
+      </div>` : '';
   }).join('');
-
   const lastDate = new Date(last.ts);
   return `
     <div class="card" style="margin-bottom:12px">
       <div class="card-label">最新の記録 — ${lastDate.toLocaleDateString('ja-JP')}</div>
       <div class="stats-row">${chips}</div>
-    </div>
-  `;
+    </div>`;
 }
 
 function buildCharts(enabled, mode) {
-  // Destroy existing
   Object.values(chartInstances).forEach(c => { try { c.destroy(); } catch(e){} });
   chartInstances = {};
-
-  let data = [...records].sort((a,b) => a.ts - b.ts);
-
-  if (mode === 'n') {
-    // Build n-day moving average groups
-    buildNDayCharts(enabled, data);
-  } else {
-    buildAllCharts(enabled, data);
-  }
+  const data = [...records].sort((a,b) => a.ts - b.ts);
+  if (mode === 'n') buildNDayCharts(enabled, data);
+  else buildAllCharts(enabled, data);
 }
 
 function buildAllCharts(enabled, data) {
@@ -1231,29 +1262,20 @@ function buildAllCharts(enabled, data) {
     const d = new Date(r.ts);
     return `${d.getMonth()+1}/${d.getDate()}`;
   });
-
   enabled.forEach(m => {
     const canvas = document.getElementById('chart-' + m.key);
     if (!canvas || !chartVisibility[m.key]) return;
-    const vals = data.map(r => r[m.key] ?? null);
-
     chartInstances[m.key] = new Chart(canvas, {
       type: 'line',
       data: {
         labels,
         datasets: [{
-          label: m.name,
-          data: vals,
-          borderColor: m.color,
-          backgroundColor: m.color + '22',
+          label: m.name, data: data.map(r => r[m.key] ?? null),
+          borderColor: m.color, backgroundColor: m.color + '22',
           borderWidth: 2,
           pointRadius: data.length > 30 ? 0 : 4,
-          pointBackgroundColor: m.color,
-          pointBorderColor: '#0a0a0f',
-          pointBorderWidth: 2,
-          tension: 0.4,
-          fill: true,
-          spanGaps: true,
+          pointBackgroundColor: m.color, pointBorderColor: '#0a0a0f', pointBorderWidth: 2,
+          tension: 0.4, fill: true, spanGaps: true,
         }]
       },
       options: chartOptions(m.name, m.unit)
@@ -1263,42 +1285,31 @@ function buildAllCharts(enabled, data) {
 
 function buildNDayCharts(enabled, data) {
   if (!data.length) return;
-
-  // Get date range
   const now = new Date();
   const result = [];
-
   for (let i = nDays - 1; i >= 0; i--) {
     const day = new Date(now);
     day.setDate(day.getDate() - i);
     const dateStr = day.toISOString().split('T')[0];
     const dayRecs = data.filter(r => r.date === dateStr);
-
     const point = { date: `${day.getMonth()+1}/${day.getDate()}` };
     enabled.forEach(m => {
       const vals = dayRecs.map(r => r[m.key]).filter(v => v != null);
-      point[m.key] = vals.length ? vals.reduce((a,b) => a+b, 0) / vals.length : null;
+      point[m.key] = vals.length ? Math.round(vals.reduce((a,b) => a+b, 0) / vals.length * 10) / 10 : null;
     });
     result.push(point);
   }
-
   const labels = result.map(r => r.date);
   enabled.forEach(m => {
     const canvas = document.getElementById('chart-' + m.key);
     if (!canvas || !chartVisibility[m.key]) return;
-    const vals = result.map(r => r[m.key] ?? null);
-
     chartInstances[m.key] = new Chart(canvas, {
       type: 'bar',
       data: {
         labels,
         datasets: [{
-          label: `${m.name}（日平均）`,
-          data: vals,
-          backgroundColor: m.color + '55',
-          borderColor: m.color,
-          borderWidth: 2,
-          borderRadius: 6,
+          label: `${m.name}（日平均）`, data: result.map(r => r[m.key] ?? null),
+          backgroundColor: m.color + '55', borderColor: m.color, borderWidth: 2, borderRadius: 6,
         }]
       },
       options: chartOptions(m.name, m.unit)
@@ -1308,37 +1319,20 @@ function buildNDayCharts(enabled, data) {
 
 function chartOptions(label, unit) {
   return {
-    responsive: true,
-    maintainAspectRatio: false,
+    responsive: true, maintainAspectRatio: false,
     animation: { duration: 600, easing: 'easeInOutQuart' },
     interaction: { intersect: false, mode: 'index' },
     plugins: {
       legend: { display: false },
       tooltip: {
-        backgroundColor: '#1a1a24',
-        borderColor: '#3a3a50',
-        borderWidth: 1,
-        titleColor: '#9090a8',
-        bodyColor: '#e8e8f0',
-        padding: 10,
-        callbacks: {
-          label: ctx => ` ${ctx.formattedValue}${unit}`
-        }
+        backgroundColor: '#1a1a24', borderColor: '#3a3a50', borderWidth: 1,
+        titleColor: '#9090a8', bodyColor: '#e8e8f0', padding: 10,
+        callbacks: { label: ctx => ` ${ctx.formattedValue}${unit}` }
       }
     },
     scales: {
-      x: {
-        grid: { color: '#2a2a3a' },
-        ticks: { color: '#5a5a72', font: { family: 'DM Mono', size: 10 } }
-      },
-      y: {
-        grid: { color: '#2a2a3a' },
-        ticks: {
-          color: '#5a5a72',
-          font: { family: 'DM Mono', size: 10 },
-          callback: v => `${v}${unit}`
-        }
-      }
+      x: { grid: { color: '#2a2a3a' }, ticks: { color: '#5a5a72', font: { family: 'DM Mono', size: 10 } } },
+      y: { grid: { color: '#2a2a3a' }, ticks: { color: '#5a5a72', font: { family: 'DM Mono', size: 10 }, callback: v => `${v}${unit}` } }
     }
   };
 }
@@ -1348,42 +1342,30 @@ function switchChartTab(mode, el) {
   document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
   el.classList.add('active');
   document.getElementById('n-selector').style.display = mode === 'n' ? '' : 'none';
-
-  const enabled = METRICS.filter(m => settings.metrics[m.key]);
-  buildCharts(enabled, mode);
+  buildCharts(METRICS.filter(m => settings.metrics[m.key]), mode);
 }
 
 function changeN(delta) {
   nDays = Math.max(1, Math.min(365, nDays + delta));
   document.getElementById('n-val').textContent = nDays;
-  if (currentChartTab === 'n') {
-    const enabled = METRICS.filter(m => settings.metrics[m.key]);
-    buildCharts(enabled, 'n');
-  }
+  if (currentChartTab === 'n') buildCharts(METRICS.filter(m => settings.metrics[m.key]), 'n');
 }
 
 function toggleChartVisibility(key) {
   chartVisibility[key] = !chartVisibility[key];
-  const tog = document.getElementById('cv-' + key);
-  if (tog) tog.classList.toggle('on', chartVisibility[key]);
-
+  document.getElementById('cv-' + key)?.classList.toggle('on', chartVisibility[key]);
   const card = document.getElementById('chart-card-' + key);
   if (card) card.style.display = chartVisibility[key] ? '' : 'none';
-
   if (chartVisibility[key]) {
-    const enabled = METRICS.filter(m => settings.metrics[m.key]);
-    buildCharts(enabled, currentChartTab);
+    buildCharts(METRICS.filter(m => settings.metrics[m.key]), currentChartTab);
   } else {
-    if (chartInstances[key]) {
-      chartInstances[key].destroy();
-      delete chartInstances[key];
-    }
+    if (chartInstances[key]) { chartInstances[key].destroy(); delete chartInstances[key]; }
   }
 }
 
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════
 // EXPORT
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════
 
 function getVisibleMetrics() {
   return METRICS.filter(m => settings.metrics[m.key] && chartVisibility[m.key]);
@@ -1393,20 +1375,16 @@ function exportCSV() {
   closeModal('export-modal');
   const vis = getVisibleMetrics();
   if (!vis.length) { toast('出力するデータがありません'); return; }
-
   const headers = ['日時', '日付', ...vis.map(m => `${m.name}(${m.unit || '-'})`)];
-  const rows = records.map(r => [
-    r.datetime || r.date,
-    r.date,
-    ...vis.map(m => r[m.key] ?? '')
+  const rows = [...records].sort((a,b) => a.ts - b.ts).map(r => [
+    r.datetime || r.date, r.date, ...vis.map(m => r[m.key] ?? '')
   ]);
-
   const csv = [headers, ...rows].map(r => r.join(',')).join('\n');
   const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `bodylog_${new Date().toISOString().split('T')[0]}.csv`;
+  a.download = `bodymasslog_${new Date().toISOString().split('T')[0]}.csv`;
   a.click();
   URL.revokeObjectURL(url);
   toast('CSVをダウンロードしました ✓');
@@ -1416,81 +1394,59 @@ function exportClipboard() {
   closeModal('export-modal');
   const vis = getVisibleMetrics();
   if (!vis.length) { toast('出力するデータがありません'); return; }
-
   const sorted = [...records].sort((a,b) => a.ts - b.ts);
-  let text = `【BodyLog 記録データ】\n`;
+  let text = '【BodyMassLog 記録データ】\n';
   text += `出力日: ${new Date().toLocaleDateString('ja-JP')}\n`;
   if (settings.height) text += `身長: ${settings.height}cm\n`;
   text += `記録期間: ${sorted[0]?.date} ～ ${sorted[sorted.length-1]?.date}\n`;
-  text += `記録件数: ${sorted.length}件\n\n`;
-  text += `【時系列データ】\n`;
-
+  text += `記録件数: ${sorted.length}件\n\n【時系列データ】\n`;
   sorted.forEach(r => {
-    const line = vis.map(m => r[m.key] != null ? `${m.name}:${r[m.key]}${m.unit}` : null)
-                    .filter(Boolean).join(', ');
+    const line = vis.map(m => r[m.key] != null ? `${m.name}:${r[m.key]}${m.unit}` : null).filter(Boolean).join(', ');
     if (line) text += `${r.datetime || r.date} — ${line}\n`;
   });
-
-  text += `\n以上のデータを分析し、傾向や改善点を教えてください。`;
-
+  text += '\n以上のデータを分析し、傾向や改善点を教えてください。';
   navigator.clipboard.writeText(text).then(() => {
     toast('クリップボードにコピーしました ✓');
   }).catch(() => {
-    // Fallback
     const ta = document.createElement('textarea');
-    ta.value = text;
-    document.body.appendChild(ta);
-    ta.select();
-    document.execCommand('copy');
-    document.body.removeChild(ta);
+    ta.value = text; document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); document.body.removeChild(ta);
     toast('クリップボードにコピーしました ✓');
   });
 }
 
 function clearAllData() {
-  records = [];
-  save();
+  records = []; save();
   closeModal('clear-modal');
   toast('全データを削除しました');
   renderChart();
 }
 
-// ═══════════════════════════════════════════════════════
-// MODAL / TOAST HELPERS
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════
+// MODAL / TOAST
+// ═══════════════════════════════════════════════
 
-function showModal(id) {
-  document.getElementById(id).classList.add('show');
-}
-function closeModal(id) {
-  document.getElementById(id).classList.remove('show');
-}
+function showModal(id) { document.getElementById(id).classList.add('show'); }
+function closeModal(id) { document.getElementById(id).classList.remove('show'); }
 document.querySelectorAll('.modal-overlay').forEach(overlay => {
-  overlay.addEventListener('click', e => {
-    if (e.target === overlay) overlay.classList.remove('show');
-  });
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.classList.remove('show'); });
 });
 
 let toastTimer;
 function toast(msg) {
   const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
+  t.textContent = msg; t.classList.add('show');
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
 }
 
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════
 // INIT
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════
 
 load();
-if (!settings.initialized) {
-  renderSettings();
-  showScreen('settings');
-} else {
-  goRecord();
-}
+if (!settings.initialized) { renderSettings(); showScreen('settings'); }
+else goRecord();
 </script>
 
 </body>
