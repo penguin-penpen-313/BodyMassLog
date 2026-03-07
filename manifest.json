@@ -1,20 +1,19 @@
 {
-  "name": "BodyLog - 体組成記録アプリ",
-  "short_name": "BodyLog",
-  "description": "体重・体組成を記録・分析するPWAアプリ",
-  "start_url": "./index.html",
+  "name": "BodyMassLog",
+  "short_name": "BML",
+  "description": "体重・体組成を記録・分析するアプリ",
+  "start_url": "./",
   "display": "standalone",
   "background_color": "#0a0a0f",
   "theme_color": "#0a0a0f",
-  "orientation": "portrait-primary",
+  "orientation": "portrait",
+  "lang": "ja",
   "icons": [
     {
       "src": "icon.svg",
       "sizes": "any",
       "type": "image/svg+xml",
-      "purpose": "any"
+      "purpose": "any maskable"
     }
-  ],
-  "categories": ["health", "fitness", "lifestyle"],
-  "lang": "ja"
+  ]
 }
