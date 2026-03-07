@@ -1,4 +1,4 @@
-const CACHE_NAME = 'bodymasslog-v5';
+const CACHE_NAME = 'bodymasslog-v6';
 const ASSETS = [
   './',
   './index.html',
