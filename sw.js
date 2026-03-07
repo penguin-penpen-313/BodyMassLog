@@ -1,57 +1,58 @@
-// BodyLog Service Worker - PWA Offline Support
-const CACHE_NAME = ‘bodylog-v1’;
-const STATIC_CACHE = [
+const CACHE_NAME = ‘bodymasslog-v4’;
+const ASSETS = [
 ‘./’,
 ‘./index.html’,
+‘./manifest.json’,
 ‘https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Syne:wght@400;500;600;700;800&family=Noto+Sans+JP:wght@300;400;500&display=swap’,
-‘https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js’,
+‘https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js’
 ];
 
-self.addEventListener(‘install’, e => {
-e.waitUntil(
+self.addEventListener(‘install’, event => {
+event.waitUntil(
 caches.open(CACHE_NAME).then(cache => {
-return cache.addAll(STATIC_CACHE).catch(err => {
-console.warn(‘Cache addAll partial failure:’, err);
-});
-})
+return Promise.allSettled(
+ASSETS.map(url => cache.add(url).catch(() => {}))
 );
-self.skipWaiting();
+}).then(() => self.skipWaiting())
+);
 });
 
-self.addEventListener(‘activate’, e => {
-e.waitUntil(
+self.addEventListener(‘activate’, event => {
+event.waitUntil(
 caches.keys().then(keys =>
-Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
+Promise.all(
+keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k))
 )
+).then(() => self.clients.claim())
 );
-self.clients.claim();
 });
 
-self.addEventListener(‘fetch’, e => {
-// Cache-first for static assets, network-first for everything else
-if (e.request.method !== ‘GET’) return;
+self.addEventListener(‘fetch’, event => {
+const url = new URL(event.request.url);
+const isLocal = url.origin === self.location.origin;
 
-e.respondWith(
-caches.match(e.request).then(cached => {
+if (isLocal) {
+event.respondWith(
+caches.match(event.request).then(cached => {
 if (cached) return cached;
-
-```
-  return fetch(e.request).then(response => {
-    if (!response || response.status !== 200) return response;
-    // Cache CDN resources
-    if (e.request.url.includes('cdn.jsdelivr.net') || e.request.url.includes('fonts.gstatic.com')) {
-      const clone = response.clone();
-      caches.open(CACHE_NAME).then(cache => cache.put(e.request, clone));
-    }
-    return response;
-  }).catch(() => {
-    // Offline fallback
-    if (e.request.destination === 'document') {
-      return caches.match('./index.html');
-    }
-  });
+return fetch(event.request).then(response => {
+if (response && response.status === 200) {
+const clone = response.clone();
+caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
+}
+return response;
+}).catch(() => caches.match(’./index.html’));
 })
-```
-
 );
+} else {
+event.respondWith(
+fetch(event.request).then(response => {
+if (response && response.status === 200) {
+const clone = response.clone();
+caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
+}
+return response;
+}).catch(() => caches.match(event.request))
+);
+}
 });
