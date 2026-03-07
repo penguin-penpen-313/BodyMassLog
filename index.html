@@ -37,652 +37,159 @@
     --shadow: 0 8px 32px rgba(0,0,0,0.6);
     color-scheme: dark;
   }
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; background: var(--bg); color: var(--text); font-family: 'Noto Sans JP', sans-serif; font-weight: 300; overflow: hidden; }
+  #app { height: 100dvh; display: flex; flex-direction: column; position: relative; overflow: hidden; }
 
-- {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  -webkit-tap-highlight-color: transparent;
-  }
+/* SCREENS */
+.screen { position: absolute; inset: 0; display: flex; flex-direction: column; opacity: 0; pointer-events: none; transform: translateY(20px); transition: opacity .35s cubic-bezier(.4,0,.2,1), transform .35s cubic-bezier(.4,0,.2,1); overflow: hidden; }
+.screen.active { opacity: 1; pointer-events: all; transform: translateY(0); }
 
-html, body {
-height: 100%;
-background: var(–bg);
-color: var(–text);
-font-family: ‘Noto Sans JP’, sans-serif;
-font-weight: 300;
-overflow: hidden;
-}
-
-#app {
-height: 100dvh;
-display: flex;
-flex-direction: column;
-position: relative;
-overflow: hidden;
-}
-
-/* –– SCREENS –– */
-.screen {
-position: absolute;
-inset: 0;
-display: flex;
-flex-direction: column;
-opacity: 0;
-pointer-events: none;
-transform: translateY(20px);
-transition: opacity .35s cubic-bezier(.4,0,.2,1), transform .35s cubic-bezier(.4,0,.2,1);
-overflow: hidden;
-}
-.screen.active {
-opacity: 1;
-pointer-events: all;
-transform: translateY(0);
-}
-
-/* –– TOPBAR –– */
-.topbar {
-display: flex;
-align-items: center;
-justify-content: space-between;
-padding: 16px 20px 12px;
-border-bottom: 1px solid var(–line);
-background: rgba(10,10,15,0.95);
-backdrop-filter: blur(20px);
-flex-shrink: 0;
-position: relative;
-z-index: 10;
-}
-.topbar-logo {
-font-family: ‘Syne’, sans-serif;
-font-weight: 800;
-font-size: 20px;
-letter-spacing: -0.5px;
-background: linear-gradient(135deg, var(–accent2), var(–green));
--webkit-background-clip: text;
--webkit-text-fill-color: transparent;
-background-clip: text;
-}
-.topbar-subtitle {
-font-family: ‘DM Mono’, monospace;
-font-size: 11px;
-color: var(–text3);
-margin-top: 1px;
-letter-spacing: 1px;
-}
-.icon-btn {
-width: 38px;
-height: 38px;
-border-radius: 10px;
-background: var(–bg3);
-border: 1px solid var(–line);
-cursor: pointer;
-display: flex;
-align-items: center;
-justify-content: center;
-transition: all .2s;
-flex-shrink: 0;
-}
+/* TOPBAR */
+.topbar { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px 12px; border-bottom: 1px solid var(–line); background: rgba(10,10,15,0.95); backdrop-filter: blur(20px); flex-shrink: 0; position: relative; z-index: 10; }
+.topbar-logo { font-family: ‘Syne’, sans-serif; font-weight: 800; font-size: 20px; letter-spacing: -0.5px; background: linear-gradient(135deg, var(–accent2), var(–green)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.topbar-subtitle { font-family: ‘DM Mono’, monospace; font-size: 11px; color: var(–text3); margin-top: 1px; letter-spacing: 1px; }
+.icon-btn { width: 38px; height: 38px; border-radius: 10px; background: var(–bg3); border: 1px solid var(–line); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all .2s; flex-shrink: 0; }
 .icon-btn:hover { background: var(–bg4); border-color: var(–line2); }
 .icon-btn svg { width: 18px; height: 18px; color: var(–text2); }
 
-/* –– CONTENT –– */
-.content {
-flex: 1;
-overflow-y: auto;
-padding: 20px;
-scroll-behavior: smooth;
-}
+/* CONTENT */
+.content { flex: 1; overflow-y: auto; padding: 20px; scroll-behavior: smooth; }
 .content::-webkit-scrollbar { width: 3px; }
 .content::-webkit-scrollbar-track { background: transparent; }
 .content::-webkit-scrollbar-thumb { background: var(–line2); border-radius: 99px; }
 
-/* –– CARDS –– */
-.card {
-background: var(–bg2);
-border: 1px solid var(–line);
-border-radius: var(–r);
-padding: 20px;
-margin-bottom: 12px;
-}
-.card-label {
-font-family: ‘DM Mono’, monospace;
-font-size: 10px;
-color: var(–text3);
-letter-spacing: 2px;
-text-transform: uppercase;
-margin-bottom: 14px;
-}
+/* CARDS */
+.card { background: var(–bg2); border: 1px solid var(–line); border-radius: var(–r); padding: 20px; margin-bottom: 12px; }
+.card-label { font-family: ‘DM Mono’, monospace; font-size: 10px; color: var(–text3); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 14px; }
 
-/* –– FORM –– */
+/* FORM */
 .field-group { margin-bottom: 16px; }
-.field-label {
-font-size: 12px;
-color: var(–text2);
-margin-bottom: 6px;
-display: flex;
-align-items: center;
-gap: 6px;
-}
-.field-unit {
-font-family: ‘DM Mono’, monospace;
-font-size: 10px;
-color: var(–text3);
-}
-.input {
-width: 100%;
-background: var(–bg3);
-border: 1px solid var(–line);
-border-radius: var(–r2);
-padding: 12px 14px;
-color: var(–text);
-font-size: 16px;
-font-family: ‘DM Mono’, monospace;
-transition: border-color .2s, box-shadow .2s;
-outline: none;
-appearance: none;
--webkit-appearance: none;
-color-scheme: dark;
-}
-.input:focus {
-border-color: var(–accent);
-box-shadow: 0 0 0 3px rgba(123,110,246,0.15);
-}
+.field-label { font-size: 12px; color: var(–text2); margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+.field-unit { font-family: ‘DM Mono’, monospace; font-size: 10px; color: var(–text3); }
+.input { width: 100%; background: var(–bg3); border: 1px solid var(–line); border-radius: var(–r2); padding: 12px 14px; color: var(–text); font-size: 16px; font-family: ‘DM Mono’, monospace; transition: border-color .2s, box-shadow .2s; outline: none; appearance: none; -webkit-appearance: none; color-scheme: dark; }
+.input:focus { border-color: var(–accent); box-shadow: 0 0 0 3px rgba(123,110,246,0.15); }
 .input::placeholder { color: var(–text3); }
 select.input { padding: 11px 14px; }
-
-.settings-grid {
-display: grid;
-grid-template-columns: 1fr 1fr;
-gap: 10px;
-}
+.settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .settings-grid .field-group { margin-bottom: 0; }
 
-/* –– TOGGLE –– */
-.toggle-row {
-display: flex;
-align-items: center;
-justify-content: space-between;
-padding: 12px 0;
-border-bottom: 1px solid var(–line);
-}
+/* TOGGLE */
+.toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(–line); }
 .toggle-row:last-child { border-bottom: none; }
-.toggle-label {
-display: flex;
-flex-direction: column;
-gap: 2px;
-}
+.toggle-label { display: flex; flex-direction: column; gap: 2px; }
 .toggle-name { font-size: 14px; color: var(–text); }
 .toggle-desc { font-size: 11px; color: var(–text3); }
-.toggle {
-width: 44px;
-height: 26px;
-background: var(–bg4);
-border-radius: 99px;
-position: relative;
-cursor: pointer;
-transition: background .25s;
-flex-shrink: 0;
-border: 1px solid var(–line2);
-}
+.toggle { width: 44px; height: 26px; background: var(–bg4); border-radius: 99px; position: relative; cursor: pointer; transition: background .25s; flex-shrink: 0; border: 1px solid var(–line2); }
 .toggle.on { background: var(–accent); border-color: var(–accent); }
-.toggle::after {
-content: ‘’;
-position: absolute;
-width: 20px;
-height: 20px;
-border-radius: 50%;
-background: #fff;
-top: 2px;
-left: 2px;
-transition: transform .25s cubic-bezier(.4,0,.2,1);
-box-shadow: 0 1px 4px rgba(0,0,0,0.3);
-}
+.toggle::after { content: ‘’; position: absolute; width: 20px; height: 20px; border-radius: 50%; background: #fff; top: 2px; left: 2px; transition: transform .25s cubic-bezier(.4,0,.2,1); box-shadow: 0 1px 4px rgba(0,0,0,0.3); }
 .toggle.on::after { transform: translateX(18px); }
 
-/* –– BUTTONS –– */
-.btn {
-width: 100%;
-padding: 15px;
-border-radius: var(–r2);
-border: none;
-font-family: ‘Syne’, sans-serif;
-font-size: 15px;
-font-weight: 600;
-cursor: pointer;
-transition: all .2s;
-letter-spacing: 0.5px;
-}
-.btn-primary {
-background: linear-gradient(135deg, var(–accent), #6056d4);
-color: #fff;
-box-shadow: 0 4px 20px rgba(123,110,246,0.35);
-}
+/* BUTTONS */
+.btn { width: 100%; padding: 15px; border-radius: var(–r2); border: none; font-family: ‘Syne’, sans-serif; font-size: 15px; font-weight: 600; cursor: pointer; transition: all .2s; letter-spacing: 0.5px; }
+.btn-primary { background: linear-gradient(135deg, var(–accent), #6056d4); color: #fff; box-shadow: 0 4px 20px rgba(123,110,246,0.35); }
 .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 24px rgba(123,110,246,0.5); }
 .btn-primary:active { transform: translateY(0); }
-.btn-primary:disabled {
-background: var(–bg4);
-color: var(–text3);
-box-shadow: none;
-cursor: not-allowed;
-transform: none;
-}
-.btn-secondary {
-background: var(–bg3);
-color: var(–text2);
-border: 1px solid var(–line);
-}
+.btn-primary:disabled { background: var(–bg4); color: var(–text3); box-shadow: none; cursor: not-allowed; transform: none; }
+.btn-secondary { background: var(–bg3); color: var(–text2); border: 1px solid var(–line); }
 .btn-secondary:hover { background: var(–bg4); border-color: var(–line2); color: var(–text); }
-.btn-ghost {
-background: transparent;
-color: var(–accent2);
-border: 1px solid rgba(123,110,246,0.3);
-}
+.btn-ghost { background: transparent; color: var(–accent2); border: 1px solid rgba(123,110,246,0.3); }
 .btn-ghost:hover { background: rgba(123,110,246,0.1); }
-.btn-danger {
-background: rgba(255,107,138,0.1);
-color: var(–red);
-border: 1px solid rgba(255,107,138,0.3);
-}
+.btn-danger { background: rgba(255,107,138,0.1); color: var(–red); border: 1px solid rgba(255,107,138,0.3); }
 .btn-danger:hover { background: rgba(255,107,138,0.2); }
-.btn-green {
-background: linear-gradient(135deg, #3db894, #2a9d8f);
-color: #fff;
-box-shadow: 0 4px 20px rgba(78,204,163,0.3);
-}
+.btn-green { background: linear-gradient(135deg, #3db894, #2a9d8f); color: #fff; box-shadow: 0 4px 20px rgba(78,204,163,0.3); }
 .btn-green:hover { transform: translateY(-1px); }
-.btn-date {
-background: var(–bg3);
-color: var(–accent2);
-border: 1px solid rgba(123,110,246,0.35);
-font-size: 13px;
-padding: 10px 14px;
-}
+.btn-date { background: var(–bg3); color: var(–accent2); border: 1px solid rgba(123,110,246,0.35); font-size: 13px; padding: 10px 14px; }
 .btn-date:hover { background: rgba(123,110,246,0.1); }
 .btn-row { display: grid; gap: 10px; margin-top: 12px; }
 .btn-row-2 { grid-template-columns: 1fr 1fr; }
 
-/* –– DATETIME –– */
-.datetime-block {
-text-align: center;
-padding: 20px 0 12px;
-}
-.dt-date {
-font-family: ‘DM Mono’, monospace;
-font-size: 12px;
-color: var(–text3);
-letter-spacing: 3px;
-text-transform: uppercase;
-margin-bottom: 6px;
-}
-.dt-time {
-font-family: ‘Syne’, sans-serif;
-font-size: 52px;
-font-weight: 800;
-letter-spacing: -3px;
-line-height: 1;
-background: linear-gradient(135deg, var(–text), var(–text2));
--webkit-background-clip: text;
--webkit-text-fill-color: transparent;
-background-clip: text;
-}
-.dt-weekday {
-font-family: ‘DM Mono’, monospace;
-font-size: 10px;
-color: var(–text3);
-letter-spacing: 2px;
-margin-top: 4px;
-text-transform: uppercase;
-}
+/* DATETIME */
+.datetime-block { text-align: center; padding: 20px 0 12px; }
+.dt-date { font-family: ‘DM Mono’, monospace; font-size: 12px; color: var(–text3); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 6px; }
+.dt-time { font-family: ‘Syne’, sans-serif; font-size: 52px; font-weight: 800; letter-spacing: -3px; line-height: 1; background: linear-gradient(135deg, var(–text), var(–text2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.dt-weekday { font-family: ‘DM Mono’, monospace; font-size: 10px; color: var(–text3); letter-spacing: 2px; margin-top: 4px; text-transform: uppercase; }
 
-/* –– DATE OVERRIDE –– */
-.date-override-bar {
-display: flex;
-align-items: center;
-gap: 8px;
-background: rgba(123,110,246,0.08);
-border: 1px solid rgba(123,110,246,0.25);
-border-radius: var(–r2);
-padding: 10px 14px;
-margin-bottom: 12px;
-}
-.date-override-text {
-flex: 1;
-font-family: ‘DM Mono’, monospace;
-font-size: 13px;
-color: var(–accent2);
-}
-.date-override-clear {
-font-size: 18px;
-color: var(–text3);
-cursor: pointer;
-padding: 2px 4px;
-}
+/* DATE OVERRIDE */
+.date-override-bar { display: flex; align-items: center; gap: 8px; background: rgba(123,110,246,0.08); border: 1px solid rgba(123,110,246,0.25); border-radius: var(–r2); padding: 10px 14px; margin-bottom: 12px; }
+.date-override-text { flex: 1; font-family: ‘DM Mono’, monospace; font-size: 13px; color: var(–accent2); }
+.date-override-clear { font-size: 18px; color: var(–text3); cursor: pointer; padding: 2px 4px; }
 .date-override-clear:hover { color: var(–red); }
 
-/* –– METRIC INPUT –– */
-.metric-input-card {
-background: var(–bg2);
-border: 1px solid var(–line);
-border-radius: var(–r);
-padding: 18px 20px;
-margin-bottom: 10px;
-display: flex;
-align-items: center;
-gap: 16px;
-transition: border-color .2s;
-}
+/* METRIC INPUT */
+.metric-input-card { background: var(–bg2); border: 1px solid var(–line); border-radius: var(–r); padding: 18px 20px; margin-bottom: 10px; display: flex; align-items: center; gap: 16px; transition: border-color .2s; }
 .metric-input-card:focus-within { border-color: var(–accent); }
-.metric-icon {
-width: 44px;
-height: 44px;
-border-radius: 10px;
-display: flex;
-align-items: center;
-justify-content: center;
-font-size: 20px;
-flex-shrink: 0;
-}
+.metric-icon { width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
 .metric-input-right { flex: 1; }
 .metric-input-name { font-size: 12px; color: var(–text2); margin-bottom: 4px; }
 .metric-input-field { display: flex; align-items: baseline; gap: 6px; }
-.metric-input-field input {
-background: transparent;
-border: none;
-outline: none;
-font-family: ‘DM Mono’, monospace;
-font-size: 28px;
-font-weight: 400;
-color: var(–text);
-width: 100%;
-padding: 0;
-appearance: none;
--webkit-appearance: none;
-}
+.metric-input-field input { background: transparent; border: none; outline: none; font-family: ‘DM Mono’, monospace; font-size: 28px; font-weight: 400; color: var(–text); width: 100%; padding: 0; appearance: none; -webkit-appearance: none; }
 .metric-input-field input::placeholder { color: var(–text3); }
-.metric-input-unit {
-font-family: ‘DM Mono’, monospace;
-font-size: 12px;
-color: var(–text3);
-white-space: nowrap;
-}
+.metric-input-unit { font-family: ‘DM Mono’, monospace; font-size: 12px; color: var(–text3); white-space: nowrap; }
 
-/* –– BMI AUTO –– */
-.bmi-auto-card {
-background: rgba(96,180,255,0.06);
-border: 1px solid rgba(96,180,255,0.2);
-border-radius: var(–r);
-padding: 14px 20px;
-margin-bottom: 10px;
-display: flex;
-align-items: center;
-gap: 16px;
-}
-.bmi-auto-val {
-font-family: ‘DM Mono’, monospace;
-font-size: 28px;
-color: var(–blue);
-flex: 1;
-}
+/* BMI AUTO */
+.bmi-auto-card { background: rgba(96,180,255,0.06); border: 1px solid rgba(96,180,255,0.2); border-radius: var(–r); padding: 14px 20px; margin-bottom: 10px; display: flex; align-items: center; gap: 16px; }
+.bmi-auto-val { font-family: ‘DM Mono’, monospace; font-size: 28px; color: var(–blue); flex: 1; }
 .bmi-auto-label { font-size: 11px; color: var(–text3); margin-top: 2px; }
 
-/* –– GOAL PROGRESS –– */
-.goal-bar-wrap {
-background: var(–bg3);
-border-radius: 99px;
-height: 4px;
-margin-top: 6px;
-overflow: hidden;
-}
-.goal-bar {
-height: 100%;
-border-radius: 99px;
-transition: width .6s cubic-bezier(.4,0,.2,1);
-}
-.goal-label {
-display: flex;
-justify-content: space-between;
-font-family: ‘DM Mono’, monospace;
-font-size: 10px;
-color: var(–text3);
-margin-top: 4px;
-}
+/* GOAL PROGRESS */
+.goal-bar-wrap { background: var(–bg3); border-radius: 99px; height: 4px; margin-top: 6px; overflow: hidden; }
+.goal-bar { height: 100%; border-radius: 99px; transition: width .6s cubic-bezier(.4,0,.2,1); }
+.goal-label { display: flex; justify-content: space-between; font-family: ‘DM Mono’, monospace; font-size: 10px; color: var(–text3); margin-top: 4px; }
 
-/* –– CHART –– */
-.chart-container {
-position: relative;
-height: 220px;
-margin: 12px 0 0;
-}
-.chart-toggle-row {
-display: flex;
-align-items: center;
-justify-content: space-between;
-padding: 10px 0;
-border-bottom: 1px solid var(–line);
-}
+/* CHART */
+.chart-container { position: relative; height: 220px; margin: 12px 0 0; }
+.chart-toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(–line); }
 .chart-toggle-row:last-child { border-bottom: none; }
-.chart-label-dot {
-width: 8px;
-height: 8px;
-border-radius: 50%;
-flex-shrink: 0;
-}
+.chart-label-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
 .chart-toggle-left { display: flex; align-items: center; gap: 10px; }
 .chart-toggle-name { font-size: 13px; color: var(–text); }
 
-/* –– STATS –– */
-.stats-row {
-display: grid;
-grid-template-columns: repeat(auto-fill, minmax(85px, 1fr));
-gap: 8px;
-margin-bottom: 12px;
-}
-.stat-chip {
-background: var(–bg3);
-border: 1px solid var(–line);
-border-radius: 10px;
-padding: 12px 10px;
-text-align: center;
-}
-.stat-chip-val {
-font-family: ‘DM Mono’, monospace;
-font-size: 17px;
-line-height: 1;
-margin-bottom: 4px;
-}
+/* STATS */
+.stats-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(85px, 1fr)); gap: 8px; margin-bottom: 12px; }
+.stat-chip { background: var(–bg3); border: 1px solid var(–line); border-radius: 10px; padding: 12px 10px; text-align: center; }
+.stat-chip-val { font-family: ‘DM Mono’, monospace; font-size: 17px; line-height: 1; margin-bottom: 4px; }
 .stat-chip-label { font-size: 10px; color: var(–text3); }
 
-/* –– CHART CONTROLS –– */
-.chart-controls {
-display: flex;
-flex-direction: column;
-gap: 8px;
-margin-bottom: 12px;
-}
-.ctrl-row {
-display: flex;
-align-items: center;
-gap: 8px;
-background: var(–bg3);
-border: 1px solid var(–line);
-border-radius: var(–r2);
-padding: 8px 12px;
-flex-wrap: wrap;
-}
-.ctrl-label {
-font-size: 12px;
-color: var(–text2);
-min-width: 60px;
-}
+/* CHART CONTROLS */
+.chart-controls { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+.ctrl-row { display: flex; align-items: center; gap: 8px; background: var(–bg3); border: 1px solid var(–line); border-radius: var(–r2); padding: 8px 12px; flex-wrap: wrap; }
+.ctrl-label { font-size: 12px; color: var(–text2); min-width: 60px; }
 .ctrl-btns { display: flex; gap: 6px; flex-wrap: wrap; }
-.seg-btn {
-padding: 5px 10px;
-border-radius: 6px;
-background: transparent;
-border: 1px solid var(–line2);
-color: var(–text2);
-font-family: ‘DM Mono’, monospace;
-font-size: 11px;
-cursor: pointer;
-transition: all .2s;
-white-space: nowrap;
-}
-.seg-btn.active {
-background: var(–accent);
-border-color: var(–accent);
-color: #fff;
-}
-.n-btn {
-width: 28px;
-height: 28px;
-border-radius: 7px;
-background: var(–bg4);
-border: 1px solid var(–line2);
-color: var(–text);
-font-size: 16px;
-cursor: pointer;
-display: flex;
-align-items: center;
-justify-content: center;
-transition: all .15s;
-}
+.seg-btn { padding: 5px 10px; border-radius: 6px; background: transparent; border: 1px solid var(–line2); color: var(–text2); font-family: ‘DM Mono’, monospace; font-size: 11px; cursor: pointer; transition: all .2s; white-space: nowrap; }
+.seg-btn.active { background: var(–accent); border-color: var(–accent); color: #fff; }
+.n-btn { width: 28px; height: 28px; border-radius: 7px; background: var(–bg4); border: 1px solid var(–line2); color: var(–text); font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all .15s; }
 .n-btn:hover { background: var(–accent); border-color: var(–accent); }
-.n-val {
-font-family: ‘DM Mono’, monospace;
-font-size: 18px;
-color: var(–accent2);
-min-width: 36px;
-text-align: center;
-}
+.n-val { font-family: ‘DM Mono’, monospace; font-size: 18px; color: var(–accent2); min-width: 36px; text-align: center; }
 
-/* –– TAB –– */
-.tab-bar {
-display: flex;
-background: var(–bg3);
-border-radius: var(–r2);
-padding: 3px;
-margin-bottom: 12px;
-border: 1px solid var(–line);
-}
-.tab-item {
-flex: 1;
-padding: 7px 4px;
-text-align: center;
-font-size: 11px;
-color: var(–text2);
-cursor: pointer;
-border-radius: 6px;
-transition: all .2s;
-font-family: ‘DM Mono’, monospace;
-}
-.tab-item.active {
-background: var(–bg);
-color: var(–accent2);
-border: 1px solid var(–line2);
-}
+/* TAB */
+.tab-bar { display: flex; background: var(–bg3); border-radius: var(–r2); padding: 3px; margin-bottom: 12px; border: 1px solid var(–line); }
+.tab-item { flex: 1; padding: 7px 4px; text-align: center; font-size: 11px; color: var(–text2); cursor: pointer; border-radius: 6px; transition: all .2s; font-family: ‘DM Mono’, monospace; }
+.tab-item.active { background: var(–bg); color: var(–accent2); border: 1px solid var(–line2); }
 
-/* –– TOAST –– */
-#toast {
-position: fixed;
-bottom: 32px;
-left: 50%;
-transform: translateX(-50%) translateY(20px);
-background: var(–bg3);
-border: 1px solid var(–line2);
-color: var(–text);
-padding: 12px 24px;
-border-radius: 99px;
-font-size: 13px;
-opacity: 0;
-transition: all .3s cubic-bezier(.4,0,.2,1);
-z-index: 1000;
-white-space: nowrap;
-box-shadow: var(–shadow);
-pointer-events: none;
-}
+/* TOAST */
+#toast { position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(–bg3); border: 1px solid var(–line2); color: var(–text); padding: 12px 24px; border-radius: 99px; font-size: 13px; opacity: 0; transition: all .3s cubic-bezier(.4,0,.2,1); z-index: 1000; white-space: nowrap; box-shadow: var(–shadow); pointer-events: none; }
 #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-/* –– MODAL –– */
-.modal-overlay {
-position: fixed;
-inset: 0;
-background: rgba(0,0,0,0.7);
-backdrop-filter: blur(8px);
-z-index: 100;
-display: flex;
-align-items: flex-end;
-opacity: 0;
-pointer-events: none;
-transition: opacity .3s;
-}
+/* MODAL */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); z-index: 100; display: flex; align-items: flex-end; opacity: 0; pointer-events: none; transition: opacity .3s; }
 .modal-overlay.show { opacity: 1; pointer-events: all; }
-.modal-sheet {
-width: 100%;
-background: var(–bg2);
-border-radius: 20px 20px 0 0;
-border-top: 1px solid var(–line);
-padding: 20px;
-transform: translateY(100%);
-transition: transform .3s cubic-bezier(.4,0,.2,1);
-}
+.modal-sheet { width: 100%; background: var(–bg2); border-radius: 20px 20px 0 0; border-top: 1px solid var(–line); padding: 20px; transform: translateY(100%); transition: transform .3s cubic-bezier(.4,0,.2,1); }
 .modal-overlay.show .modal-sheet { transform: translateY(0); }
-.modal-handle {
-width: 40px;
-height: 4px;
-background: var(–line2);
-border-radius: 99px;
-margin: 0 auto 20px;
-}
-.modal-title {
-font-family: ‘Syne’, sans-serif;
-font-size: 16px;
-font-weight: 600;
-margin-bottom: 16px;
-text-align: center;
-}
+.modal-handle { width: 40px; height: 4px; background: var(–line2); border-radius: 99px; margin: 0 auto 20px; }
+.modal-title { font-family: ‘Syne’, sans-serif; font-size: 16px; font-weight: 600; margin-bottom: 16px; text-align: center; }
 .date-modal-grid { display: grid; gap: 12px; }
 .date-modal-row { display: flex; align-items: center; gap: 12px; }
 .date-modal-label { font-size: 13px; color: var(–text2); min-width: 80px; }
-.date-modal-input {
-flex: 1;
-background: var(–bg3);
-border: 1px solid var(–line);
-border-radius: var(–r2);
-padding: 10px 12px;
-color: var(–text);
-font-family: ‘DM Mono’, monospace;
-font-size: 15px;
-outline: none;
-appearance: none;
--webkit-appearance: none;
-color-scheme: dark;
-}
+.date-modal-input { flex: 1; background: var(–bg3); border: 1px solid var(–line); border-radius: var(–r2); padding: 10px 12px; color: var(–text); font-family: ‘DM Mono’, monospace; font-size: 15px; outline: none; appearance: none; -webkit-appearance: none; color-scheme: dark; }
 .date-modal-input:focus { border-color: var(–accent); }
 .time-check-row { display: flex; align-items: center; gap: 10px; padding: 4px 0; }
 .time-check-row label { font-size: 13px; color: var(–text2); cursor: pointer; }
 input[type=“checkbox”] { width: 18px; height: 18px; accent-color: var(–accent); cursor: pointer; }
 
-/* –– MISC –– */
-.section-title {
-font-family: ‘Syne’, sans-serif;
-font-size: 13px;
-font-weight: 600;
-color: var(–text2);
-letter-spacing: 0.5px;
-margin-bottom: 10px;
-display: flex;
-align-items: center;
-gap: 8px;
-}
-.badge {
-background: rgba(123,110,246,0.2);
-color: var(–accent2);
-border-radius: 99px;
-padding: 2px 8px;
-font-size: 10px;
-font-family: ‘DM Mono’, monospace;
-}
+/* MISC */
+.section-title { font-family: ‘Syne’, sans-serif; font-size: 13px; font-weight: 600; color: var(–text2); letter-spacing: 0.5px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+.badge { background: rgba(123,110,246,0.2); color: var(–accent2); border-radius: 99px; padding: 2px 8px; font-size: 10px; font-family: ‘DM Mono’, monospace; }
 .empty-state { text-align: center; padding: 40px 20px; color: var(–text3); }
 .empty-state-icon { font-size: 48px; margin-bottom: 12px; }
 .empty-state-text { font-size: 14px; }
@@ -699,19 +206,8 @@ font-family: ‘DM Mono’, monospace;
 .bg-bmi    { background: rgba(96,180,255,0.15); }
 .bg-bmr    { background: rgba(255,209,102,0.15); }
 
-.live-dot {
-width: 6px;
-height: 6px;
-border-radius: 50%;
-background: var(–green);
-display: inline-block;
-margin-right: 6px;
-animation: pulse 2s infinite;
-}
-@keyframes pulse {
-0%, 100% { opacity: 1; transform: scale(1); }
-50% { opacity: .4; transform: scale(0.7); }
-}
+.live-dot { width: 6px; height: 6px; border-radius: 50%; background: var(–green); display: inline-block; margin-right: 6px; animation: pulse 2s infinite; }
+@keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: .4; transform: scale(0.7); } }
 </style>
 
 </head>
@@ -729,26 +225,25 @@ animation: pulse 2s infinite;
     <div style="width:38px"></div>
   </div>
   <div class="content">
+    <div class="card">
+      <div class="card-label">プロフィール</div>
+      <div class="settings-grid">
+        <div class="field-group">
+          <div class="field-label">身長 <span class="field-unit">cm</span></div>
+          <input class="input" type="number" id="s-height" placeholder="170" inputmode="decimal">
+        </div>
+        <div class="field-group">
+          <div class="field-label">性別</div>
+          <select class="input" id="s-gender">
+            <option value="">未設定</option>
+            <option value="male">男性</option>
+            <option value="female">女性</option>
+          </select>
+        </div>
+      </div>
+    </div>
 
 ```
-<div class="card">
-  <div class="card-label">プロフィール</div>
-  <div class="settings-grid">
-    <div class="field-group">
-      <div class="field-label">身長 <span class="field-unit">cm</span></div>
-      <input class="input" type="number" id="s-height" placeholder="170" inputmode="decimal">
-    </div>
-    <div class="field-group">
-      <div class="field-label">性別</div>
-      <select class="input" id="s-gender">
-        <option value="">未設定</option>
-        <option value="male">男性</option>
-        <option value="female">女性</option>
-      </select>
-    </div>
-  </div>
-</div>
-
 <div class="card">
   <div class="card-label">目標値（任意）</div>
   <div class="settings-grid">
@@ -780,9 +275,7 @@ animation: pulse 2s infinite;
   <div id="metric-toggles"></div>
 </div>
 
-<button class="btn btn-primary" onclick="saveSettings()" style="margin-top:4px">
-  保存して開始
-</button>
+<button class="btn btn-primary" onclick="saveSettings()" style="margin-top:4px">保存して開始</button>
 <div style="height:32px"></div>
 ```
 
@@ -811,19 +304,19 @@ animation: pulse 2s infinite;
 
 ```
 <div id="date-override-bar" style="display:none" class="date-override-bar">
-  <span>📅</span>
+  <span>&#128197;</span>
   <span class="date-override-text" id="date-override-text"></span>
-  <span class="date-override-clear" onclick="clearDateOverride()">✕</span>
+  <span class="date-override-clear" onclick="clearDateOverride()">&#x2715;</span>
 </div>
 
 <button class="btn btn-date" onclick="showModal('date-modal')" style="margin-bottom:14px">
-  📅 日付を指定する
+  &#128197; 日付を指定する
 </button>
 
 <div id="metric-inputs"></div>
 
 <div id="bmi-auto-display" style="display:none" class="bmi-auto-card">
-  <div class="metric-icon bg-bmi">📊</div>
+  <div class="metric-icon bg-bmi">&#128202;</div>
   <div class="metric-input-right">
     <div class="metric-input-name c-bmi">BMI（自動計算）</div>
     <div class="metric-input-field">
@@ -875,7 +368,7 @@ animation: pulse 2s infinite;
 <div class="modal-overlay" id="date-modal">
   <div class="modal-sheet">
     <div class="modal-handle"></div>
-    <div class="modal-title">📅 日付を指定する</div>
+    <div class="modal-title">&#128197; 日付を指定する</div>
     <div class="date-modal-grid">
       <div class="date-modal-row">
         <span class="date-modal-label">日付</span>
@@ -904,10 +397,10 @@ animation: pulse 2s infinite;
     <div class="modal-handle"></div>
     <div class="modal-title">データを出力</div>
     <button class="btn btn-secondary" onclick="exportCSV()" style="margin-bottom:10px">
-      📊 CSVファイルとしてダウンロード
+      &#128202; CSVファイルとしてダウンロード
     </button>
     <button class="btn btn-ghost" onclick="exportClipboard()">
-      🤖 AIチャット用テキストをコピー
+      &#129302; AIチャット用テキストをコピー
     </button>
     <button class="btn btn-ghost" onclick="closeModal('export-modal')" style="margin-top:16px;color:var(--text3);border-color:transparent">
       キャンセル
@@ -934,19 +427,19 @@ animation: pulse 2s infinite;
 // CONSTANTS
 // ========================================
 const METRICS = [
-  { key:'weight', name:'体重',     unit:'kg',   icon:'⚖️', color:'#a594ff', cls:'c-weight', bg:'bg-weight', defaultOn:true,  autoCalc:false },
-  { key:'fat',    name:'体脂肪率', unit:'%',    icon:'🔥', color:'#ff9f43', cls:'c-fat',    bg:'bg-fat',    defaultOn:false, autoCalc:false },
-  { key:'muscle', name:'筋肉量',   unit:'kg',   icon:'💪', color:'#4ecca3', cls:'c-muscle', bg:'bg-muscle', defaultOn:false, autoCalc:false },
-  { key:'bmi',    name:'BMI',      unit:'',     icon:'📊', color:'#60b4ff', cls:'c-bmi',    bg:'bg-bmi',    defaultOn:false, autoCalc:true  },
-  { key:'bmr',    name:'基礎代謝', unit:'kcal', icon:'⚡', color:'#ffd166', cls:'c-bmr',    bg:'bg-bmr',    defaultOn:false, autoCalc:false },
+  { key:'weight', name:'体重',     unit:'kg',   icon:'&#9878;',  color:'#a594ff', cls:'c-weight', bg:'bg-weight', defaultOn:true,  autoCalc:false },
+  { key:'fat',    name:'体脂肪率', unit:'%',    icon:'&#128293;', color:'#ff9f43', cls:'c-fat',    bg:'bg-fat',    defaultOn:false, autoCalc:false },
+  { key:'muscle', name:'筋肉量',   unit:'kg',   icon:'&#128170;', color:'#4ecca3', cls:'c-muscle', bg:'bg-muscle', defaultOn:false, autoCalc:false },
+  { key:'bmi',    name:'BMI',      unit:'',     icon:'&#128202;', color:'#60b4ff', cls:'c-bmi',    bg:'bg-bmi',    defaultOn:false, autoCalc:true  },
+  { key:'bmr',    name:'基礎代謝', unit:'kcal', icon:'&#9889;',  color:'#ffd166', cls:'c-bmr',    bg:'bg-bmr',    defaultOn:false, autoCalc:false },
 ];
 const WEEKDAYS = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
 const MONTHS   = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 const BMI_CATS = [
-  { max:18.5,    label:'低体重',        color:'#60b4ff' },
-  { max:25.0,    label:'普通体重',      color:'#4ecca3' },
-  { max:30.0,    label:'肥満(1度)',    color:'#ffd166' },
-  { max:35.0,    label:'肥満(2度)',    color:'#ff9f43' },
+  { max:18.5,    label:'低体重',          color:'#60b4ff' },
+  { max:25.0,    label:'普通体重',        color:'#4ecca3' },
+  { max:30.0,    label:'肥満(1度)',      color:'#ffd166' },
+  { max:35.0,    label:'肥満(2度)',      color:'#ff9f43' },
   { max:Infinity,label:'肥満(3度以上)', color:'#ff6b8a' },
 ];
 
@@ -978,7 +471,7 @@ let dateOverride = null;
 // PERSIST
 // ========================================
 function load() {
-  try { const s = JSON.parse(localStorage.getItem('bml_settings')); if (s) settings = s; } catch(e) {}
+  try { const s = JSON.parse(localStorage.getItem('bml_settings')); if (s) settings = {...settings, ...s}; } catch(e) {}
   try { const r = JSON.parse(localStorage.getItem('bml_records'));   if (r) records  = r; } catch(e) {}
   METRICS.forEach(m => {
     if (chartVisibility[m.key] === undefined) chartVisibility[m.key] = true;
@@ -1057,13 +550,24 @@ function applyDateOverride() {
   if (!dateVal) { toast('日付を選択してください'); return; }
   const timeChk = document.getElementById('override-time-check').checked;
   const timeVal = timeChk ? document.getElementById('override-time').value : '';
-  const dt = timeVal ? new Date(dateVal + 'T' + timeVal + ':00') : new Date(dateVal + 'T00:00:00');
-  if (dt.getTime() > Date.now()) { toast('未来の日時は指定できません'); return; }
+  // Build datetime - if no time specified, use start of that day
+  const dt = timeVal
+    ? new Date(dateVal + 'T' + timeVal + ':00')
+    : new Date(dateVal + 'T00:00:00');
+  // Reject future datetimes
+  // If no time specified, compare only dates
+  const now = new Date();
+  if (timeVal) {
+    if (dt.getTime() > now.getTime()) { toast('未来の日時は指定できません'); return; }
+  } else {
+    const todayStr = now.toISOString().split('T')[0];
+    if (dateVal > todayStr) { toast('未来の日付は指定できません'); return; }
+  }
   const [y, mo, d] = dateVal.split('-');
   const dispTime = timeVal || '00:00';
   const dispText = y + '年' + parseInt(mo) + '月' + parseInt(d) + '日 ' + dispTime;
   dateOverride = { ts: dt.getTime(), date: dateVal, datetime: dt.toLocaleString('ja-JP'), displayText: dispText };
-  document.getElementById('date-override-text').textContent = '📅 ' + dispText + ' として記録';
+  document.getElementById('date-override-text').textContent = dispText + ' として記録';
   document.getElementById('date-override-bar').style.display = '';
   closeModal('date-modal');
   toast('日付を指定しました');
@@ -1086,6 +590,7 @@ function renderSettings() {
   document.getElementById('s-goal-bmi').value    = settings.goalBmi || '';
   document.getElementById('s-goal-date').value   = settings.goalDate || '';
 
+  // Goal date min = tomorrow
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
   document.getElementById('s-goal-date').min = tomorrow.toISOString().split('T')[0];
@@ -1096,9 +601,7 @@ function renderSettings() {
         <span class="toggle-name">${m.icon} ${m.name}${m.autoCalc ? ' <span style="font-size:10px;color:var(--blue)">(自動計算)</span>' : ''}</span>
         <span class="toggle-desc ${m.cls}">${m.unit || '指数'}</span>
       </div>
-      <div class="toggle ${settings.metrics[m.key] ? 'on' : ''}" id="tog-${m.key}" onclick="toggleMetric('${m.key}')">
-        <div class="toggle-knob"></div>
-      </div>
+      <div class="toggle ${settings.metrics[m.key] ? 'on' : ''}" id="tog-${m.key}" onclick="toggleMetric('${m.key}')"></div>
     </div>`).join('');
 }
 
@@ -1111,9 +614,12 @@ function toggleMetric(key) {
 // RECORD RENDER
 // ========================================
 function renderRecord() {
+  // Set default date in modal
   const today = new Date().toISOString().split('T')[0];
   const di = document.getElementById('override-date');
   if (di && !di.value) di.value = today;
+  // Set max date to today to prevent future date selection
+  if (di) di.max = today;
 
   const enabled = METRICS.filter(m => settings.metrics[m.key] && !m.autoCalc);
   document.getElementById('metric-inputs').innerHTML = enabled.map(m => `
@@ -1141,11 +647,12 @@ function onMetricInput() {
   checkRecordBtn();
 }
 
-function calcBmi() {
+function calcBmi(weight) {
   if (!settings.height) return null;
-  const el = document.getElementById('inp-weight');
-  if (!el) return null;
-  const w = parseFloat(el.value);
+  const w = weight !== undefined ? weight : (() => {
+    const el = document.getElementById('inp-weight');
+    return el ? parseFloat(el.value) : NaN;
+  })();
   if (isNaN(w) || w <= 0) return null;
   const hm = settings.height / 100;
   return Math.round(w / (hm * hm) * 10) / 10;
@@ -1262,7 +769,7 @@ function renderChart() {
   if (!records.length) {
     content.innerHTML = `
       <div class="empty-state">
-        <div class="empty-state-icon">📭</div>
+        <div class="empty-state-icon">&#128269;</div>
         <div class="empty-state-text">まだ記録がありません<br>最初のデータを記録しましょう</div>
       </div>
       <button class="btn btn-primary" onclick="goRecord()" style="margin-top:8px">データを記録する</button>`;
@@ -1312,7 +819,7 @@ function renderChart() {
           <span style="font-size:12px;color:var(--text3)">日</span>
         </div>
         <div class="ctrl-row">
-          <span class="ctrl-label">Y軸原点</span>
+          <span class="ctrl-label">Y軸</span>
           <div class="ctrl-btns">
             <button class="seg-btn ${yAxisMode === 'auto' ? 'active' : ''}" onclick="setYMode('auto')">データ範囲</button>
             <button class="seg-btn ${yAxisMode === 'zero' ? 'active' : ''}" onclick="setYMode('zero')">ゼロ起点</button>
@@ -1379,6 +886,9 @@ function filterByRange(data) {
   return data.filter(r => r.ts >= cutoff);
 }
 
+// ========================================
+// ALL-PERIOD CHART
+// ========================================
 function buildAllCharts(enabled, sortedData) {
   const data = filterByRange(sortedData);
   const labels = data.map(r => {
@@ -1391,14 +901,15 @@ function buildAllCharts(enabled, sortedData) {
     if (!canvas || !chartVisibility[m.key]) return;
 
     const vals = data.map(r => r[m.key] ?? null);
-    const goalDs = buildGoalDataset(m, data, labels);
+    const goalDatasets = buildGoalDatasets(m, data, labels);
 
     chartInstances[m.key] = new Chart(canvas, {
       type: 'line',
       data: {
         labels,
         datasets: [
-          { label: m.name,
+          {
+            label: m.name,
             data: vals,
             borderColor: m.color,
             backgroundColor: m.color + '22',
@@ -1409,8 +920,9 @@ function buildAllCharts(enabled, sortedData) {
             pointBorderWidth: 2,
             tension: 0.3,
             fill: true,
-            spanGaps: true },
-          ...(goalDs ? [goalDs] : [])
+            spanGaps: true
+          },
+          ...goalDatasets
         ]
       },
       options: buildChartOptions(m)
@@ -1418,10 +930,13 @@ function buildAllCharts(enabled, sortedData) {
   });
 }
 
+// ========================================
+// MOVING AVERAGE CHART
+// ========================================
 function buildMACharts(enabled, sortedData) {
   const data = filterByRange(sortedData);
 
-  // Step 1: aggregate to daily averages
+  // Step 1: aggregate to daily averages (handles multiple measurements per day)
   const dailyMap = {};
   data.forEach(r => {
     if (!dailyMap[r.date]) dailyMap[r.date] = {};
@@ -1442,11 +957,11 @@ function buildMACharts(enabled, sortedData) {
     return entry;
   });
 
-  // Step 2: n-day moving average
+  // Step 2: n-day moving average (uses available data if fewer than n days)
   function movingAvg(arr, n) {
     return arr.map((_, i) => {
-      const window = arr.slice(Math.max(0, i - n + 1), i + 1).filter(v => v != null);
-      return window.length ? Math.round(window.reduce((a,b) => a+b,0) / window.length * 100) / 100 : null;
+      const win = arr.slice(Math.max(0, i - n + 1), i + 1).filter(v => v != null);
+      return win.length ? Math.round(win.reduce((a,b) => a+b, 0) / win.length * 100) / 100 : null;
     });
   }
 
@@ -1461,14 +976,15 @@ function buildMACharts(enabled, sortedData) {
 
     const rawVals = dailyData.map(d => d[m.key]);
     const maVals  = movingAvg(rawVals, nDays);
-    const goalDs  = buildGoalDataset(m, data, labels);
+    const goalDatasets = buildGoalDatasets(m, data, labels);
 
     chartInstances[m.key] = new Chart(canvas, {
       type: 'line',
       data: {
         labels,
         datasets: [
-          { label: m.name + ' 日次平均',
+          {
+            label: m.name + ' 日次平均',
             data: rawVals,
             borderColor: m.color + '55',
             backgroundColor: 'transparent',
@@ -1477,8 +993,10 @@ function buildMACharts(enabled, sortedData) {
             pointBackgroundColor: m.color + '88',
             tension: 0.2,
             spanGaps: true,
-            borderDash: [3, 4] },
-          { label: m.name + ' ' + nDays + '日移動平均',
+            borderDash: [3, 4]
+          },
+          {
+            label: m.name + ' ' + nDays + '日移動平均',
             data: maVals,
             borderColor: m.color,
             backgroundColor: m.color + '22',
@@ -1486,8 +1004,9 @@ function buildMACharts(enabled, sortedData) {
             pointRadius: 0,
             tension: 0.4,
             fill: true,
-            spanGaps: true },
-          ...(goalDs ? [goalDs] : [])
+            spanGaps: true
+          },
+          ...goalDatasets
         ]
       },
       options: buildChartOptions(m)
@@ -1495,58 +1014,120 @@ function buildMACharts(enabled, sortedData) {
   });
 }
 
-function buildGoalDataset(m, data, labels) {
-  if (!settings.goalDate) return null;
+// ========================================
+// GOAL LINE DATASETS
+// ========================================
+function buildGoalDatasets(m, data, labels) {
+  if (!settings.goalDate) return [];
   const goalDateMs = new Date(settings.goalDate + 'T00:00:00').getTime();
   const lastRec = data.length ? data[data.length - 1] : null;
-  if (!lastRec) return null;
+  if (!lastRec) return [];
 
+  // Determine goal value for this metric
   let goalVal = null;
   if      (m.key === 'weight') goalVal = settings.goalWeight;
   else if (m.key === 'fat')    goalVal = settings.goalFat;
   else if (m.key === 'muscle') goalVal = settings.goalMuscle;
   else if (m.key === 'bmi')    goalVal = settings.goalBmi;
-  if (goalVal == null) return null;
+  if (goalVal == null) return [];
 
   const lastVal = lastRec[m.key];
-  if (lastVal == null) return null;
+  if (lastVal == null) return [];
 
-  // Build sparse dataset: null except at last point and goal point
-  const goalData = labels.map(() => null);
-  goalData[labels.length - 1] = lastVal;
+  // Build goal label for x-axis
+  const gd = new Date(goalDateMs);
+  const goalLabel = (gd.getMonth() + 1) + '/' + gd.getDate();
+  const allLabels = goalDateMs > lastRec.ts ? [...labels, goalLabel] : [...labels];
+  const totalLen = allLabels.length;
 
-  const allLabels = [...labels];
-  const allGoalData = [...goalData];
+  // Simple linear goal line: null except last data point and goal date
+  const goalLineData = Array(totalLen).fill(null);
+  goalLineData[labels.length - 1] = lastVal;
+  if (goalDateMs > lastRec.ts) goalLineData[totalLen - 1] = goalVal;
 
-  if (goalDateMs > lastRec.ts) {
-    const gd = new Date(goalDateMs);
-    allLabels.push((gd.getMonth() + 1) + '/' + gd.getDate());
-    allGoalData.push(goalVal);
-  }
-
-  return {
+  const datasets = [{
     label: '目標ライン',
-    data: allGoalData,
+    data: goalLineData,
     borderColor: m.color + '90',
     backgroundColor: 'transparent',
     borderWidth: 1.5,
     borderDash: [6, 4],
-    pointRadius: allGoalData.map((v, i) => (v != null ? 4 : 0)),
+    pointRadius: goalLineData.map(v => v != null ? 4 : 0),
     pointBackgroundColor: m.color + 'aa',
     pointBorderColor: '#0a0a0f',
     pointBorderWidth: 1,
     tension: 0,
     spanGaps: true,
     fill: false,
-  };
+    // Extra label for goal date (Chart.js will extend x-axis)
+    _goalLabel: goalLabel,
+    _isGoal: true
+  }];
+
+  // Special BMI curve for weight chart when goalBmi is set
+  // Shows the weight trajectory such that BMI changes linearly from current to goalBmi
+  if (m.key === 'weight' && settings.goalBmi && settings.height && goalDateMs > lastRec.ts) {
+    const hm = settings.height / 100;
+    const currentBmi = calcBmi(lastVal);
+    if (currentBmi !== null) {
+      const goalWeightForBmi = Math.round(settings.goalBmi * hm * hm * 10) / 10;
+      // Create intermediate points along the BMI-linear trajectory
+      const startTs = lastRec.ts;
+      const endTs   = goalDateMs;
+      const totalMs = endTs - startTs;
+      // We'll add one point per day between now and goal
+      const bmiCurveData = Array(totalLen).fill(null);
+      bmiCurveData[labels.length - 1] = lastVal;
+
+      // Map goal date index
+      if (goalDateMs > lastRec.ts) {
+        // Compute weight for each existing label between last and goal
+        // Only fill forward from last data point index
+        const lastIdx = labels.length - 1;
+        const goalIdx = totalLen - 1;
+        for (let i = lastIdx; i <= goalIdx; i++) {
+          const t = goalIdx === lastIdx ? 1 : (i - lastIdx) / (goalIdx - lastIdx);
+          // BMI linear: bmi(t) = currentBmi + (goalBmi - currentBmi) * t
+          const bmiAtT = currentBmi + (settings.goalBmi - currentBmi) * t;
+          // Weight from BMI
+          bmiCurveData[i] = Math.round(bmiAtT * hm * hm * 10) / 10;
+        }
+
+        datasets.push({
+          label: 'BMI目標曲線 (体重換算)',
+          data: bmiCurveData,
+          borderColor: '#60b4ff88',
+          backgroundColor: 'transparent',
+          borderWidth: 1.5,
+          borderDash: [3, 5],
+          pointRadius: 0,
+          tension: 0.3,
+          spanGaps: true,
+          fill: false
+        });
+      }
+    }
+  }
+
+  return datasets;
 }
 
+// ========================================
+// CHART OPTIONS
+// ========================================
 function buildChartOptions(m) {
   let goalVal = null;
   if      (m.key === 'weight') goalVal = settings.goalWeight;
   else if (m.key === 'fat')    goalVal = settings.goalFat;
   else if (m.key === 'muscle') goalVal = settings.goalMuscle;
   else if (m.key === 'bmi')    goalVal = settings.goalBmi;
+
+  // Also factor in BMI-derived goal weight if applicable
+  let bmiGoalWeight = null;
+  if (m.key === 'weight' && settings.goalBmi && settings.height) {
+    const hm = settings.height / 100;
+    bmiGoalWeight = settings.goalBmi * hm * hm;
+  }
 
   return {
     responsive: true,
@@ -1562,8 +1143,12 @@ function buildChartOptions(m) {
         titleColor: '#9090a8',
         bodyColor: '#e8e8f0',
         padding: 10,
+        filter: item => item.parsed.y !== null,
         callbacks: {
-          label: ctx => ctx.dataset.label + ': ' + ctx.formattedValue + m.unit
+          label: ctx => {
+            if (ctx.parsed.y === null) return null;
+            return ctx.dataset.label + ': ' + ctx.parsed.y + m.unit;
+          }
         }
       }
     },
@@ -1580,10 +1165,14 @@ function buildChartOptions(m) {
           font: { family: 'DM Mono', size: 10 },
           callback: v => v + m.unit
         },
-        afterDataLimits: (yAxisMode !== 'zero' && goalVal != null) ? (scale => {
-          scale.min = Math.min(scale.min, goalVal) - 0.5;
-          scale.max = Math.max(scale.max, goalVal) + 0.5;
-        }) : undefined,
+        afterDataLimits: (yAxisMode !== 'zero') ? (scale => {
+          // Include goal value in Y range
+          const candidates = [goalVal, bmiGoalWeight].filter(v => v != null);
+          candidates.forEach(v => {
+            scale.min = Math.min(scale.min, v) - 0.5;
+            scale.max = Math.max(scale.max, v) + 0.5;
+          });
+        }) : undefined
       }
     }
   };
@@ -1610,11 +1199,10 @@ function changeN(delta) {
 
 function setXRange(val) {
   xRangeDays = val;
+  // Update all seg-btn active states for xRange
   document.querySelectorAll('.seg-btn').forEach(b => {
-    const btnVal = b.getAttribute('onclick')?.match(/setXRange\((\d+)\)/)?.[1];
-    if (btnVal !== null && btnVal !== undefined) {
-      b.classList.toggle('active', parseInt(btnVal) === val);
-    }
+    const match = b.getAttribute('onclick')?.match(/^setXRange\((\d+)\)$/);
+    if (match) b.classList.toggle('active', parseInt(match[1]) === val);
   });
   buildCharts(METRICS.filter(m => settings.metrics[m.key]), currentChartTab);
 }
@@ -1622,7 +1210,7 @@ function setXRange(val) {
 function setYMode(mode) {
   yAxisMode = mode;
   document.querySelectorAll('.seg-btn').forEach(b => {
-    const match = b.getAttribute('onclick')?.match(/setYMode\('(\w+)'\)/);
+    const match = b.getAttribute('onclick')?.match(/^setYMode\('(\w+)'\)$/);
     if (match) b.classList.toggle('active', match[1] === mode);
   });
   buildCharts(METRICS.filter(m => settings.metrics[m.key]), currentChartTab);
@@ -1633,8 +1221,11 @@ function toggleChartVisibility(key) {
   document.getElementById('cv-' + key)?.classList.toggle('on', chartVisibility[key]);
   const card = document.getElementById('chart-card-' + key);
   if (card) card.style.display = chartVisibility[key] ? '' : 'none';
-  if (chartVisibility[key]) buildCharts(METRICS.filter(m => settings.metrics[m.key]), currentChartTab);
-  else { if (chartInstances[key]) { chartInstances[key].destroy(); delete chartInstances[key]; } }
+  if (chartVisibility[key]) {
+    buildCharts(METRICS.filter(m => settings.metrics[m.key]), currentChartTab);
+  } else {
+    if (chartInstances[key]) { chartInstances[key].destroy(); delete chartInstances[key]; }
+  }
 }
 
 // ========================================
@@ -1668,22 +1259,34 @@ function exportClipboard() {
   const vis = getVisibleMetrics();
   if (!vis.length) { toast('出力するデータがありません'); return; }
   const sorted = [...records].sort((a,b) => a.ts - b.ts);
+
   let text = '【BodyMassLog 記録データ】\n';
-  text += '出力日: ' + new Date().toLocaleDateString('ja-JP') + '\n';
+  text += '出力日: ' + new Date().toLocaleDateString('ja-JP') + '\n\n';
+
+  text += '【プロフィール】\n';
   if (settings.height) text += '身長: ' + settings.height + 'cm\n';
   if (settings.gender) text += '性別: ' + (settings.gender === 'male' ? '男性' : '女性') + '\n';
+
   text += '\n【目標値】\n';
   if (settings.goalWeight) text += '目標体重: ' + settings.goalWeight + 'kg\n';
   if (settings.goalFat)    text += '目標体脂肪率: ' + settings.goalFat + '%\n';
   if (settings.goalMuscle) text += '目標筋肉量: ' + settings.goalMuscle + 'kg\n';
   if (settings.goalBmi)    text += '目標BMI: ' + settings.goalBmi + '\n';
   if (settings.goalDate)   text += '目標達成日: ' + settings.goalDate + '\n';
-  text += '\n記録期間: ' + sorted[0]?.date + ' 〜 ' + sorted[sorted.length-1]?.date + '\n';
-  text += '記録件数: ' + sorted.length + '件\n\n【時系列データ】\n';
+  if (!settings.goalWeight && !settings.goalFat && !settings.goalMuscle && !settings.goalBmi) {
+    text += '（未設定）\n';
+  }
+
+  text += '\n【記録データ概要】\n';
+  text += '記録期間: ' + (sorted[0]?.date || '-') + ' 〜 ' + (sorted[sorted.length-1]?.date || '-') + '\n';
+  text += '記録件数: ' + sorted.length + '件\n';
+
+  text += '\n【時系列データ】\n';
   sorted.forEach(r => {
     const line = vis.map(m => r[m.key] != null ? m.name + ':' + r[m.key] + m.unit : null).filter(Boolean).join(', ');
     if (line) text += (r.datetime || r.date) + ' - ' + line + '\n';
   });
+
   text += '\n以上のデータを分析し、目標達成に向けた傾向や改善点を教えてください。';
 
   navigator.clipboard.writeText(text).then(() => {
