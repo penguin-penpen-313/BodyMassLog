@@ -207,6 +207,27 @@
 
   .live-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); display: inline-block; margin-right: 6px; animation: pulse 2s infinite; }
   @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: .4; transform: scale(0.7); } }
+
+  /* DATA LIST */
+  .modal-sheet-scroll { max-height: 80dvh; overflow-y: auto; }
+  .data-list-item { display: flex; align-items: flex-start; gap: 10px; padding: 12px 0; border-bottom: 1px solid var(--line); }
+  .data-list-item:last-child { border-bottom: none; }
+  .data-list-meta { min-width: 0; flex: 1; }
+  .data-list-date { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text3); margin-bottom: 4px; }
+  .data-list-vals { display: flex; flex-wrap: wrap; gap: 6px; }
+  .data-list-val-chip { font-family: 'DM Mono', monospace; font-size: 12px; padding: 2px 8px; border-radius: 6px; background: var(--bg3); border: 1px solid var(--line); }
+  .data-list-actions { display: flex; gap: 6px; flex-shrink: 0; margin-top: 2px; }
+  .data-edit-btn { font-size: 12px; padding: 5px 12px; border-radius: 6px; background: var(--bg3); border: 1px solid var(--line2); color: var(--text2); cursor: pointer; white-space: nowrap; }
+  .data-edit-btn:hover { border-color: var(--accent2); color: var(--accent2); }
+  .data-del-btn { font-size: 12px; padding: 5px 12px; border-radius: 6px; background: rgba(255,107,138,0.08); border: 1px solid rgba(255,107,138,0.25); color: var(--red); cursor: pointer; white-space: nowrap; }
+  .data-del-btn:hover { background: rgba(255,107,138,0.18); }
+
+  /* EDIT MODAL */
+  .edit-field-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+  .edit-field-label { font-size: 13px; color: var(--text2); min-width: 80px; flex-shrink: 0; }
+  .edit-input { flex: 1; background: var(--bg3); border: 1px solid var(--line); border-radius: var(--r2); padding: 10px 12px; color: var(--text); font-family: 'DM Mono', monospace; font-size: 16px; outline: none; appearance: none; -webkit-appearance: none; color-scheme: dark; }
+  .edit-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(123,110,246,0.15); }
+  .edit-date-label { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text3); background: var(--bg3); border: 1px solid var(--line); border-radius: var(--r2); padding: 10px 12px; flex: 1; }
 </style>
 </head>
 <body>
@@ -408,6 +429,31 @@
   </div>
 </div>
 
+<!-- data list modal -->
+<div class="modal-overlay" id="datalist-modal">
+  <div class="modal-sheet modal-sheet-scroll">
+    <div class="modal-handle"></div>
+    <div class="modal-title">&#128196; データ一覧</div>
+    <div id="datalist-inner"></div>
+    <div style="margin-top:16px">
+      <button class="btn btn-secondary" onclick="closeModal('datalist-modal')">閉じる</button>
+    </div>
+  </div>
+</div>
+
+<!-- edit record modal -->
+<div class="modal-overlay" id="edit-modal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">&#9999;&#65039; 記録を修正</div>
+    <div id="edit-modal-inner"></div>
+    <div class="btn-row btn-row-2" style="margin-top:16px">
+      <button class="btn btn-secondary" onclick="closeModal('edit-modal');showModal('datalist-modal')">戻る</button>
+      <button class="btn btn-primary" onclick="saveEditRecord()">保存</button>
+    </div>
+  </div>
+</div>
+
 <script>
 // ========================================
 // CONSTANTS
@@ -449,9 +495,12 @@ let chartVisibility = {};
 let nDays = 14;
 let xRangeDays = 0;
 let yAxisMode = 'auto';
+let showGoalHLine = true;   // horizontal goal value line
+let showGoalLine  = true;   // diagonal projection line to goal date
 let currentChartTab = 'all';
 let clockInterval = null;
 let dateOverride = null;
+let editingRecordIdx = null;
 
 // ========================================
 // PERSIST
@@ -811,6 +860,13 @@ function renderChart() {
             <button class="seg-btn ${yAxisMode === 'zero' ? 'active' : ''}" onclick="setYMode('zero')">ゼロ起点</button>
           </div>
         </div>
+        <div class="ctrl-row">
+          <span class="ctrl-label">目標線</span>
+          <div class="ctrl-btns">
+            <button class="seg-btn ${showGoalHLine ? 'active' : ''}" id="btn-goalh" onclick="toggleGoalHLine()">目標値ライン</button>
+            <button class="seg-btn ${showGoalLine ? 'active' : ''}" id="btn-goalp" onclick="toggleGoalLine()">目標進捗線</button>
+          </div>
+        </div>
       </div>
 
       ${togglesHtml}
@@ -829,8 +885,9 @@ function renderChart() {
 
     <div style="height:12px"></div>
     <button class="btn btn-green" onclick="showModal('export-modal')">結果を出力</button>
-    <div class="btn-row" style="margin-top:10px">
+    <div class="btn-row btn-row-2" style="margin-top:10px">
       <button class="btn btn-secondary" onclick="goRecord()">データを記録する</button>
+      <button class="btn btn-secondary" onclick="openDataList()">&#128196; データ一覧</button>
     </div>
     <button class="btn btn-danger" onclick="showModal('clear-modal')" style="margin-top:10px;padding:12px;font-size:13px">
       全データを削除
@@ -877,7 +934,7 @@ function filterByRange(data) {
 // ========================================
 function buildAllCharts(enabled, sortedData) {
   const data = filterByRange(sortedData);
-  const labels = data.map(r => {
+  const baseLabels = data.map(r => {
     const d = new Date(r.ts);
     return (d.getMonth() + 1) + '/' + d.getDate();
   });
@@ -887,16 +944,23 @@ function buildAllCharts(enabled, sortedData) {
     if (!canvas || !chartVisibility[m.key]) return;
 
     const vals = data.map(r => r[m.key] ?? null);
-    const goalDatasets = buildGoalDatasets(m, data, labels);
+    const { datasets: goalDatasets, extraLabels } = buildGoalDatasets(m, data, baseLabels);
+    const allLabels = [...baseLabels, ...extraLabels];
+    // Pad main data with nulls for extra x-axis points
+    const paddedVals = [...vals, ...extraLabels.map(() => null)];
+    // Also pad goal datasets that are shorter than allLabels
+    goalDatasets.forEach(ds => {
+      while (ds.data.length < allLabels.length) ds.data.push(null);
+    });
 
     chartInstances[m.key] = new Chart(canvas, {
       type: 'line',
       data: {
-        labels,
+        labels: allLabels,
         datasets: [
           {
             label: m.name,
-            data: vals,
+            data: paddedVals,
             borderColor: m.color,
             backgroundColor: m.color + '22',
             borderWidth: 2,
@@ -906,7 +970,8 @@ function buildAllCharts(enabled, sortedData) {
             pointBorderWidth: 2,
             tension: 0.3,
             fill: true,
-            spanGaps: true
+            spanGaps: true,
+            order: 1
           },
           ...goalDatasets
         ]
@@ -922,7 +987,7 @@ function buildAllCharts(enabled, sortedData) {
 function buildMACharts(enabled, sortedData) {
   const data = filterByRange(sortedData);
 
-  // Step 1: aggregate to daily averages (handles multiple measurements per day)
+  // Step 1: aggregate to daily averages
   const dailyMap = {};
   data.forEach(r => {
     if (!dailyMap[r.date]) dailyMap[r.date] = {};
@@ -935,7 +1000,7 @@ function buildMACharts(enabled, sortedData) {
   });
   const days = Object.keys(dailyMap).sort();
   const dailyData = days.map(date => {
-    const entry = { date };
+    const entry = { date, ts: new Date(date + 'T00:00:00').getTime() };
     METRICS.forEach(m => {
       const arr = dailyMap[date][m.key];
       entry[m.key] = arr ? Math.round(arr.reduce((a,b) => a+b, 0) / arr.length * 100) / 100 : null;
@@ -943,7 +1008,7 @@ function buildMACharts(enabled, sortedData) {
     return entry;
   });
 
-  // Step 2: n-day moving average (uses available data if fewer than n days)
+  // Step 2: n-day moving average
   function movingAvg(arr, n) {
     return arr.map((_, i) => {
       const win = arr.slice(Math.max(0, i - n + 1), i + 1).filter(v => v != null);
@@ -951,7 +1016,7 @@ function buildMACharts(enabled, sortedData) {
     });
   }
 
-  const labels = dailyData.map(d => {
+  const baseLabels = dailyData.map(d => {
     const [, mo, da] = d.date.split('-');
     return parseInt(mo) + '/' + parseInt(da);
   });
@@ -962,16 +1027,29 @@ function buildMACharts(enabled, sortedData) {
 
     const rawVals = dailyData.map(d => d[m.key]);
     const maVals  = movingAvg(rawVals, nDays);
-    const goalDatasets = buildGoalDatasets(m, data, labels);
+
+    // Last MA value (last non-null) as anchor for goal projection
+    let lastMAVal = null;
+    for (let i = maVals.length - 1; i >= 0; i--) {
+      if (maVals[i] != null) { lastMAVal = maVals[i]; break; }
+    }
+
+    const { datasets: goalDatasets, extraLabels } = buildGoalDatasets(m, dailyData, baseLabels, lastMAVal);
+    const allLabels = [...baseLabels, ...extraLabels];
+    const paddedRaw = [...rawVals, ...extraLabels.map(() => null)];
+    const paddedMA  = [...maVals,  ...extraLabels.map(() => null)];
+    goalDatasets.forEach(ds => {
+      while (ds.data.length < allLabels.length) ds.data.push(null);
+    });
 
     chartInstances[m.key] = new Chart(canvas, {
       type: 'line',
       data: {
-        labels,
+        labels: allLabels,
         datasets: [
           {
             label: m.name + ' 日次平均',
-            data: rawVals,
+            data: paddedRaw,
             borderColor: m.color + '55',
             backgroundColor: 'transparent',
             borderWidth: 1,
@@ -979,18 +1057,20 @@ function buildMACharts(enabled, sortedData) {
             pointBackgroundColor: m.color + '88',
             tension: 0.2,
             spanGaps: true,
-            borderDash: [3, 4]
+            borderDash: [3, 4],
+            order: 2
           },
           {
             label: m.name + ' ' + nDays + '日移動平均',
-            data: maVals,
+            data: paddedMA,
             borderColor: m.color,
             backgroundColor: m.color + '22',
             borderWidth: 2.5,
             pointRadius: 0,
             tension: 0.4,
             fill: true,
-            spanGaps: true
+            spanGaps: true,
+            order: 1
           },
           ...goalDatasets
         ]
@@ -1002,12 +1082,12 @@ function buildMACharts(enabled, sortedData) {
 
 // ========================================
 // GOAL LINE DATASETS
+// Returns { datasets, extraLabels }
+// extraLabels: additional x-axis labels to append (e.g. goal date)
 // ========================================
-function buildGoalDatasets(m, data, labels) {
-  if (!settings.goalDate) return [];
-  const goalDateMs = new Date(settings.goalDate + 'T00:00:00').getTime();
-  const lastRec = data.length ? data[data.length - 1] : null;
-  if (!lastRec) return [];
+function buildGoalDatasets(m, data, baseLabels, overrideLastVal) {
+  const datasets = [];
+  const extraLabels = [];
 
   // Determine goal value for this metric
   let goalVal = null;
@@ -1015,87 +1095,102 @@ function buildGoalDatasets(m, data, labels) {
   else if (m.key === 'fat')    goalVal = settings.goalFat;
   else if (m.key === 'muscle') goalVal = settings.goalMuscle;
   else if (m.key === 'bmi')    goalVal = settings.goalBmi;
-  if (goalVal == null) return [];
 
-  const lastVal = lastRec[m.key];
-  if (lastVal == null) return [];
+  const baseLen = baseLabels.length;
 
-  // Build goal label for x-axis
-  const gd = new Date(goalDateMs);
-  const goalLabel = (gd.getMonth() + 1) + '/' + gd.getDate();
-  const allLabels = goalDateMs > lastRec.ts ? [...labels, goalLabel] : [...labels];
-  const totalLen = allLabels.length;
+  // ── 1. Horizontal goal value line ──────────────────────────────
+  if (showGoalHLine && goalVal != null) {
+    datasets.push({
+      label: '目標値 ' + goalVal + m.unit,
+      data: Array(baseLen).fill(goalVal),
+      borderColor: m.color + '70',
+      backgroundColor: 'transparent',
+      borderWidth: 1.5,
+      borderDash: [5, 6],
+      pointRadius: 0,
+      tension: 0,
+      fill: false,
+      spanGaps: true,
+      order: 10
+    });
+  }
 
-  // Simple linear goal line: null except last data point and goal date
-  const goalLineData = Array(totalLen).fill(null);
-  goalLineData[labels.length - 1] = lastVal;
-  if (goalDateMs > lastRec.ts) goalLineData[totalLen - 1] = goalVal;
+  // ── 2. Projection line to goal date ────────────────────────────
+  if (showGoalLine && settings.goalDate && goalVal != null && data.length) {
+    const goalDateMs = new Date(settings.goalDate + 'T00:00:00').getTime();
+    const lastRec = data[data.length - 1];
+    // Use override value (e.g. last MA value) if provided, otherwise last recorded value
+    const lastVal = (overrideLastVal !== undefined && overrideLastVal !== null)
+      ? overrideLastVal
+      : lastRec[m.key];
 
-  const datasets = [{
-    label: '目標ライン',
-    data: goalLineData,
-    borderColor: m.color + '90',
-    backgroundColor: 'transparent',
-    borderWidth: 1.5,
-    borderDash: [6, 4],
-    pointRadius: goalLineData.map(v => v != null ? 4 : 0),
-    pointBackgroundColor: m.color + 'aa',
-    pointBorderColor: '#0a0a0f',
-    pointBorderWidth: 1,
-    tension: 0,
-    spanGaps: true,
-    fill: false,
-    // Extra label for goal date (Chart.js will extend x-axis)
-    _goalLabel: goalLabel,
-    _isGoal: true
-  }];
+    if (lastVal != null && goalDateMs > lastRec.ts) {
+      const gd = new Date(goalDateMs);
+      const goalLabel = (gd.getMonth() + 1) + '/' + gd.getDate();
+      extraLabels.push(goalLabel);
 
-  // Special BMI curve for weight chart when goalBmi is set
-  // Shows the weight trajectory such that BMI changes linearly from current to goalBmi
-  if (m.key === 'weight' && settings.goalBmi && settings.height && goalDateMs > lastRec.ts) {
-    const hm = settings.height / 100;
-    const currentBmi = calcBmi(lastVal);
-    if (currentBmi !== null) {
-      const goalWeightForBmi = Math.round(settings.goalBmi * hm * hm * 10) / 10;
-      // Create intermediate points along the BMI-linear trajectory
-      const startTs = lastRec.ts;
-      const endTs   = goalDateMs;
-      const totalMs = endTs - startTs;
-      // We'll add one point per day between now and goal
-      const bmiCurveData = Array(totalLen).fill(null);
-      bmiCurveData[labels.length - 1] = lastVal;
+      const totalLen = baseLen + 1; // one extra point for goal date
 
-      // Map goal date index
-      if (goalDateMs > lastRec.ts) {
-        // Compute weight for each existing label between last and goal
-        // Only fill forward from last data point index
-        const lastIdx = labels.length - 1;
-        const goalIdx = totalLen - 1;
-        for (let i = lastIdx; i <= goalIdx; i++) {
-          const t = goalIdx === lastIdx ? 1 : (i - lastIdx) / (goalIdx - lastIdx);
-          // BMI linear: bmi(t) = currentBmi + (goalBmi - currentBmi) * t
-          const bmiAtT = currentBmi + (settings.goalBmi - currentBmi) * t;
-          // Weight from BMI
-          bmiCurveData[i] = Math.round(bmiAtT * hm * hm * 10) / 10;
+      // For weight: if BMI goal is set and height is known, the goal weight is derived from BMI
+      let projGoalVal = goalVal;
+      if (m.key === 'weight' && settings.goalBmi && settings.height) {
+        const hm = settings.height / 100;
+        projGoalVal = Math.round(settings.goalBmi * hm * hm * 10) / 10;
+      }
+
+      // Simple straight projection line: start at lastVal, end at projGoalVal
+      const projData = Array(totalLen).fill(null);
+      projData[baseLen - 1] = lastVal;  // anchor at last data point
+      projData[totalLen - 1] = projGoalVal; // target at goal date
+
+      datasets.push({
+        label: '目標進捗線',
+        data: projData,
+        borderColor: m.color + 'cc',
+        backgroundColor: 'transparent',
+        borderWidth: 2,
+        borderDash: [8, 4],
+        pointRadius: projData.map((v, i) => (v != null && (i === baseLen - 1 || i === totalLen - 1)) ? 5 : 0),
+        pointBackgroundColor: m.color,
+        pointBorderColor: '#0a0a0f',
+        pointBorderWidth: 2,
+        tension: 0,
+        fill: false,
+        spanGaps: true,
+        order: 5
+      });
+
+      // ── BMI-derived weight curve ────────────────────────────────
+      if (m.key === 'weight' && settings.goalBmi && settings.height) {
+        const hm = settings.height / 100;
+        const currentBmi = calcBmi(lastVal);
+        if (currentBmi !== null) {
+          const curveData = Array(totalLen).fill(null);
+          // Fill from lastVal position to goal date with BMI-linear weight trajectory
+          for (let i = baseLen - 1; i < totalLen; i++) {
+            const t = (i - (baseLen - 1)) / (totalLen - baseLen); // 0→1
+            const bmiAtT = currentBmi + (settings.goalBmi - currentBmi) * t;
+            curveData[i] = Math.round(bmiAtT * hm * hm * 10) / 10;
+          }
+          datasets.push({
+            label: 'BMI目標曲線(体重換算)',
+            data: curveData,
+            borderColor: '#60b4ffaa',
+            backgroundColor: 'transparent',
+            borderWidth: 1.5,
+            borderDash: [3, 5],
+            pointRadius: 0,
+            tension: 0.3,
+            fill: false,
+            spanGaps: true,
+            order: 6
+          });
         }
-
-        datasets.push({
-          label: 'BMI目標曲線 (体重換算)',
-          data: bmiCurveData,
-          borderColor: '#60b4ff88',
-          backgroundColor: 'transparent',
-          borderWidth: 1.5,
-          borderDash: [3, 5],
-          pointRadius: 0,
-          tension: 0.3,
-          spanGaps: true,
-          fill: false
-        });
       }
     }
   }
 
-  return datasets;
+  return { datasets, extraLabels };
 }
 
 // ========================================
@@ -1108,12 +1203,17 @@ function buildChartOptions(m) {
   else if (m.key === 'muscle') goalVal = settings.goalMuscle;
   else if (m.key === 'bmi')    goalVal = settings.goalBmi;
 
-  // Also factor in BMI-derived goal weight if applicable
+  // BMI-derived goal weight for weight chart
   let bmiGoalWeight = null;
   if (m.key === 'weight' && settings.goalBmi && settings.height) {
     const hm = settings.height / 100;
-    bmiGoalWeight = settings.goalBmi * hm * hm;
+    bmiGoalWeight = Math.round(settings.goalBmi * hm * hm * 10) / 10;
   }
+
+  // Tick formatter: muscle shows 1 decimal place always
+  const tickCb = m.key === 'muscle'
+    ? v => v.toFixed(1) + m.unit
+    : v => v + m.unit;
 
   return {
     responsive: true,
@@ -1149,14 +1249,14 @@ function buildChartOptions(m) {
         ticks: {
           color: '#5a5a72',
           font: { family: 'DM Mono', size: 10 },
-          callback: v => v + m.unit
+          callback: tickCb
         },
-        afterDataLimits: (yAxisMode !== 'zero') ? (scale => {
-          // Include goal value in Y range
+        afterDataLimits: yAxisMode !== 'zero' ? (scale => {
+          // Expand Y range to include goal values and BMI-derived values
           const candidates = [goalVal, bmiGoalWeight].filter(v => v != null);
           candidates.forEach(v => {
-            scale.min = Math.min(scale.min, v) - 0.5;
-            scale.max = Math.max(scale.max, v) + 0.5;
+            if (v < scale.min) scale.min = v - 0.5;
+            if (v > scale.max) scale.max = v + 0.5;
           });
         }) : undefined
       }
@@ -1212,6 +1312,101 @@ function toggleChartVisibility(key) {
   } else {
     if (chartInstances[key]) { chartInstances[key].destroy(); delete chartInstances[key]; }
   }
+}
+
+function toggleGoalHLine() {
+  showGoalHLine = !showGoalHLine;
+  const btn = document.getElementById('btn-goalh');
+  if (btn) btn.classList.toggle('active', showGoalHLine);
+  buildCharts(METRICS.filter(m => settings.metrics[m.key]), currentChartTab);
+}
+
+function toggleGoalLine() {
+  showGoalLine = !showGoalLine;
+  const btn = document.getElementById('btn-goalp');
+  if (btn) btn.classList.toggle('active', showGoalLine);
+  buildCharts(METRICS.filter(m => settings.metrics[m.key]), currentChartTab);
+}
+
+// ========================================
+// DATA LIST — view / edit / delete
+// ========================================
+function openDataList() {
+  const sorted = [...records].map((r, i) => ({ r, i })).sort((a, b) => b.r.ts - a.r.ts);
+  const enabled = METRICS.filter(m => settings.metrics[m.key]);
+
+  if (!sorted.length) {
+    document.getElementById('datalist-inner').innerHTML =
+      '<div class="empty-state"><div class="empty-state-icon">&#128269;</div><div class="empty-state-text">記録がありません</div></div>';
+  } else {
+    document.getElementById('datalist-inner').innerHTML = sorted.map(({ r, i }) => {
+      const chips = enabled.filter(m => r[m.key] != null)
+        .map(m => `<span class="data-list-val-chip ${m.cls}">${m.name} ${r[m.key]}${m.unit}</span>`)
+        .join('');
+      const dateStr = r.datetime || r.date;
+      return `<div class="data-list-item">
+        <div class="data-list-meta">
+          <div class="data-list-date">${dateStr}</div>
+          <div class="data-list-vals">${chips || '<span style="color:var(--text3);font-size:12px">データなし</span>'}</div>
+        </div>
+        <div class="data-list-actions">
+          <button class="data-edit-btn" onclick="openEditRecord(${i})">修正</button>
+          <button class="data-del-btn" onclick="deleteRecord(${i})">削除</button>
+        </div>
+      </div>`;
+    }).join('');
+  }
+  showModal('datalist-modal');
+}
+
+function deleteRecord(idx) {
+  if (!confirm('この記録を削除しますか？')) return;
+  records.splice(idx, 1);
+  save();
+  toast('記録を削除しました');
+  openDataList();   // refresh list
+  renderChart();    // refresh chart in background
+}
+
+function openEditRecord(idx) {
+  editingRecordIdx = idx;
+  const r = records[idx];
+  const enabled = METRICS.filter(m => settings.metrics[m.key] && !m.autoCalc);
+  const dateStr = r.datetime || r.date;
+  const fields = enabled.map(m => `
+    <div class="edit-field-row">
+      <span class="edit-field-label ${m.cls}">${m.name}${m.unit ? ' ('+m.unit+')' : ''}</span>
+      <input class="edit-input" type="number" inputmode="decimal"
+        id="edit-inp-${m.key}" value="${r[m.key] ?? ''}" placeholder="未入力">
+    </div>`).join('');
+  document.getElementById('edit-modal-inner').innerHTML =
+    `<div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text3);margin-bottom:14px;background:var(--bg3);padding:8px 12px;border-radius:8px">&#128197; ${dateStr}</div>` +
+    fields;
+  closeModal('datalist-modal');
+  showModal('edit-modal');
+}
+
+function saveEditRecord() {
+  if (editingRecordIdx === null) return;
+  const r = records[editingRecordIdx];
+  const enabled = METRICS.filter(m => settings.metrics[m.key] && !m.autoCalc);
+  enabled.forEach(m => {
+    const el = document.getElementById('edit-inp-' + m.key);
+    if (!el) return;
+    const val = parseFloat(el.value);
+    r[m.key] = isNaN(val) ? null : val;
+  });
+  // Recalculate BMI if weight was edited
+  if (settings.metrics['bmi'] && r.weight != null) {
+    const bmi = calcBmi(r.weight);
+    r.bmi = bmi !== null ? bmi : null;
+  }
+  save();
+  toast('記録を修正しました ✓');
+  editingRecordIdx = null;
+  closeModal('edit-modal');
+  openDataList();
+  renderChart();
 }
 
 // ========================================
