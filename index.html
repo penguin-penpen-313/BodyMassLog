@@ -492,11 +492,10 @@ let settings = {
 let records = [];
 let chartInstances = {};
 let chartVisibility = {};
-let nDays = 14;
+let nDays = 3;
 let xRangeDays = 0;
 let yAxisMode = 'auto';
-let showGoalHLine = true;   // horizontal goal value line
-let showGoalLine  = true;   // diagonal projection line to goal date
+let showGoalHLine = true;   // horizontal goal value line (always shown)
 let currentChartTab = 'all';
 let clockInterval = null;
 let dateOverride = null;
@@ -854,17 +853,10 @@ function renderChart() {
           <span style="font-size:12px;color:var(--text3)">日</span>
         </div>
         <div class="ctrl-row">
-          <span class="ctrl-label">Y軸</span>
+          <span class="ctrl-label">縦軸の範囲</span>
           <div class="ctrl-btns">
-            <button class="seg-btn ${yAxisMode === 'auto' ? 'active' : ''}" onclick="setYMode('auto')">データ範囲</button>
-            <button class="seg-btn ${yAxisMode === 'zero' ? 'active' : ''}" onclick="setYMode('zero')">ゼロ起点</button>
-          </div>
-        </div>
-        <div class="ctrl-row">
-          <span class="ctrl-label">目標線</span>
-          <div class="ctrl-btns">
-            <button class="seg-btn ${showGoalHLine ? 'active' : ''}" id="btn-goalh" onclick="toggleGoalHLine()">目標値ライン</button>
-            <button class="seg-btn ${showGoalLine ? 'active' : ''}" id="btn-goalp" onclick="toggleGoalLine()">目標進捗線</button>
+            <button class="seg-btn ${yAxisMode === 'auto' ? 'active' : ''}" onclick="setYMode('auto')">拡大表示</button>
+            <button class="seg-btn ${yAxisMode === 'zero' ? 'active' : ''}" onclick="setYMode('zero')">縮小表示</button>
           </div>
         </div>
       </div>
@@ -1115,81 +1107,6 @@ function buildGoalDatasets(m, data, baseLabels, overrideLastVal) {
     });
   }
 
-  // ── 2. Projection line to goal date ────────────────────────────
-  if (showGoalLine && settings.goalDate && goalVal != null && data.length) {
-    const goalDateMs = new Date(settings.goalDate + 'T00:00:00').getTime();
-    const lastRec = data[data.length - 1];
-    // Use override value (e.g. last MA value) if provided, otherwise last recorded value
-    const lastVal = (overrideLastVal !== undefined && overrideLastVal !== null)
-      ? overrideLastVal
-      : lastRec[m.key];
-
-    if (lastVal != null && goalDateMs > lastRec.ts) {
-      const gd = new Date(goalDateMs);
-      const goalLabel = (gd.getMonth() + 1) + '/' + gd.getDate();
-      extraLabels.push(goalLabel);
-
-      const totalLen = baseLen + 1; // one extra point for goal date
-
-      // For weight: if BMI goal is set and height is known, the goal weight is derived from BMI
-      let projGoalVal = goalVal;
-      if (m.key === 'weight' && settings.goalBmi && settings.height) {
-        const hm = settings.height / 100;
-        projGoalVal = Math.round(settings.goalBmi * hm * hm * 10) / 10;
-      }
-
-      // Simple straight projection line: start at lastVal, end at projGoalVal
-      const projData = Array(totalLen).fill(null);
-      projData[baseLen - 1] = lastVal;  // anchor at last data point
-      projData[totalLen - 1] = projGoalVal; // target at goal date
-
-      datasets.push({
-        label: '目標進捗線',
-        data: projData,
-        borderColor: m.color + 'cc',
-        backgroundColor: 'transparent',
-        borderWidth: 2,
-        borderDash: [8, 4],
-        pointRadius: projData.map((v, i) => (v != null && (i === baseLen - 1 || i === totalLen - 1)) ? 5 : 0),
-        pointBackgroundColor: m.color,
-        pointBorderColor: '#0a0a0f',
-        pointBorderWidth: 2,
-        tension: 0,
-        fill: false,
-        spanGaps: true,
-        order: 5
-      });
-
-      // ── BMI-derived weight curve ────────────────────────────────
-      if (m.key === 'weight' && settings.goalBmi && settings.height) {
-        const hm = settings.height / 100;
-        const currentBmi = calcBmi(lastVal);
-        if (currentBmi !== null) {
-          const curveData = Array(totalLen).fill(null);
-          // Fill from lastVal position to goal date with BMI-linear weight trajectory
-          for (let i = baseLen - 1; i < totalLen; i++) {
-            const t = (i - (baseLen - 1)) / (totalLen - baseLen); // 0→1
-            const bmiAtT = currentBmi + (settings.goalBmi - currentBmi) * t;
-            curveData[i] = Math.round(bmiAtT * hm * hm * 10) / 10;
-          }
-          datasets.push({
-            label: 'BMI目標曲線(体重換算)',
-            data: curveData,
-            borderColor: '#60b4ffaa',
-            backgroundColor: 'transparent',
-            borderWidth: 1.5,
-            borderDash: [3, 5],
-            pointRadius: 0,
-            tension: 0.3,
-            fill: false,
-            spanGaps: true,
-            order: 6
-          });
-        }
-      }
-    }
-  }
-
   return { datasets, extraLabels };
 }
 
@@ -1312,20 +1229,6 @@ function toggleChartVisibility(key) {
   } else {
     if (chartInstances[key]) { chartInstances[key].destroy(); delete chartInstances[key]; }
   }
-}
-
-function toggleGoalHLine() {
-  showGoalHLine = !showGoalHLine;
-  const btn = document.getElementById('btn-goalh');
-  if (btn) btn.classList.toggle('active', showGoalHLine);
-  buildCharts(METRICS.filter(m => settings.metrics[m.key]), currentChartTab);
-}
-
-function toggleGoalLine() {
-  showGoalLine = !showGoalLine;
-  const btn = document.getElementById('btn-goalp');
-  if (btn) btn.classList.toggle('active', showGoalLine);
-  buildCharts(METRICS.filter(m => settings.metrics[m.key]), currentChartTab);
 }
 
 // ========================================
