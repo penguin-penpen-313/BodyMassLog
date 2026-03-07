@@ -22,6 +22,7 @@
   --accent:#7b6ef6; --accent2:#a594ff; --accent3:#c8bcff;
   --green:#4ecca3; --red:#ff6b8a; --yellow:#ffd166; --blue:#60b4ff; --orange:#ff9f43;
   --r:12px; --r2:8px; --shadow:0 8px 32px rgba(0,0,0,.6);
+  color-scheme: dark;
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-serif;font-weight:300;overflow:hidden}
@@ -47,10 +48,10 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Noto S
 .field-group{margin-bottom:16px}
 .field-label{font-size:12px;color:var(–text2);margin-bottom:6px;display:flex;align-items:center;gap:6px}
 .field-unit{font-family:‘DM Mono’,monospace;font-size:10px;color:var(–text3)}
-.input{width:100%;background:var(–bg3);border:1px solid var(–line);border-radius:var(–r2);padding:12px 14px;color:var(–text);font-size:16px;font-family:‘DM Mono’,monospace;transition:border-color .2s,box-shadow .2s;outline:none;appearance:none;-webkit-appearance:none}
+.input{width:100%;background:var(–bg3);border:1px solid var(–line);border-radius:var(–r2);padding:12px 14px;color:var(–text);font-size:16px;font-family:‘DM Mono’,monospace;transition:border-color .2s,box-shadow .2s;outline:none;appearance:none;-webkit-appearance:none;color-scheme:dark}
 .input:focus{border-color:var(–accent);box-shadow:0 0 0 3px rgba(123,110,246,.15)}
 .input::placeholder{color:var(–text3)}
-select.input{padding:11px 14px}
+select.input{padding:11px 14px;color-scheme:dark}
 
 .toggle-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(–line)}
 .toggle-row:last-child{border-bottom:none}
@@ -184,6 +185,7 @@ input[type=“checkbox”]{width:18px;height:18px;accent-color:var(–accent);cu
   </div>
   <div class="content">
 
+
 <div class="card">
   <div class="card-label">プロフィール</div>
   <div class="settings-grid">
@@ -235,6 +237,7 @@ input[type=“checkbox”]{width:18px;height:18px;accent-color:var(–accent);cu
 
 <button class="btn btn-primary" onclick="saveSettings()" style="margin-top:4px">保存して開始</button>
 <div style="height:32px"></div>
+
 
   </div>
 </div>
