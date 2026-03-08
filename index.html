@@ -238,6 +238,7 @@
     <div>
       <div class="topbar-logo">BodyMassLog</div>
       <div class="topbar-subtitle">SETTINGS</div>
+      <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);margin-left:6px;align-self:flex-end;padding-bottom:2px">v1.4</span>
     </div>
     <div style="width:38px"></div>
   </div>
@@ -300,6 +301,7 @@
 <div class="screen" id="screen-record">
   <div class="topbar">
     <div class="topbar-logo">BodyMassLog</div>
+    <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);align-self:flex-end;padding-bottom:3px;margin-left:6px">v1.4</span>
     <div style="flex:1"></div>
     <button class="icon-btn" onclick="goSettings()" title="設定">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
@@ -357,6 +359,7 @@
     <div>
       <div class="topbar-logo">BodyMassLog</div>
       <div class="topbar-subtitle">ANALYTICS</div>
+      <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);margin-left:6px;align-self:flex-end;padding-bottom:2px">v1.4</span>
     </div>
     <button class="icon-btn" onclick="goSettings()" title="設定">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
@@ -435,7 +438,7 @@
     <div class="modal-title">&#128196; データ一覧</div>
     <div id="datalist-inner"></div>
     <div style="margin-top:16px;display:grid;gap:10px">
-      <button class="btn btn-ghost" onclick="triggerImportCSV()">&#128229; CSVからデータを復元・追加</button>
+      <button class="btn btn-ghost" onclick="triggerImportCSV()">&#128229; CSVファイルをインポート</button>
       <input type="file" id="csv-file-input" accept=".csv" style="display:none" onchange="importCSV(this)">
       <button class="btn btn-secondary" onclick="closeModal('datalist-modal')">閉じる</button>
     </div>
@@ -466,8 +469,41 @@
   </div>
 </div>
 
+<!-- delete confirm modal (replaces confirm() to avoid iOS Safari issue) -->
+<div class="modal-overlay" id="delete-confirm-modal">
+  <div class="modal-sheet" style="text-align:center">
+    <div class="modal-handle"></div>
+    <div class="modal-title" style="color:var(--red)">記録を削除</div>
+    <p style="font-size:13px;color:var(--text2);margin-bottom:20px">この記録を削除しますか？<br>この操作は取り消せません。</p>
+    <button class="btn btn-danger" onclick="confirmDeleteRecord()" style="margin-bottom:10px">削除する</button>
+    <button class="btn btn-secondary" onclick="closeModal('delete-confirm-modal');pendingDeleteIdx=null;openDataList()">キャンセル</button>
+  </div>
+</div>
+
+<!-- import version warning modal -->
+<div class="modal-overlay" id="import-version-modal">
+  <div class="modal-sheet" style="text-align:center">
+    <div class="modal-handle"></div>
+    <div class="modal-title" style="color:var(--accent2)">&#9888;&#65039; バージョンの違い</div>
+    <p id="import-version-msg" style="font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:20px"></p>
+    <button class="btn btn-primary" onclick="proceedImportAfterVersionWarning()" style="margin-bottom:10px">続けてインポート</button>
+    <button class="btn btn-secondary" onclick="closeModal('import-version-modal');pendingImportText=null">キャンセル</button>
+  </div>
+</div>
+
+<!-- import error modal -->
+<div class="modal-overlay" id="import-error-modal">
+  <div class="modal-sheet" style="text-align:center">
+    <div class="modal-handle"></div>
+    <div class="modal-title" style="color:var(--red)">&#10060; インポートエラー</div>
+    <p id="import-error-msg" style="font-size:13px;color:var(--text2);line-height:1.7;white-space:pre-line;margin-bottom:20px"></p>
+    <button class="btn btn-secondary" onclick="closeModal('import-error-modal')">閉じる</button>
+  </div>
+</div>
+
 <script>
 // ========================================
+const APP_VERSION = '1.4';
 // CONSTANTS
 // ========================================
 const METRICS = [
@@ -890,7 +926,8 @@ function renderChart() {
         <div class="empty-state-icon">&#128269;</div>
         <div class="empty-state-text">まだ記録がありません<br>最初のデータを記録しましょう</div>
       </div>
-      <button class="btn btn-primary" onclick="goRecord()" style="margin-top:8px">データを記録する</button>`;
+      <button class="btn btn-primary" onclick="goRecord()" style="margin-top:8px">データを記録する</button>
+      <button class="btn btn-ghost" onclick="triggerImportCSV()" style="margin-top:10px">&#128229; CSVファイルをインポート</button>`;
     return;
   }
 
@@ -1119,7 +1156,9 @@ function buildCharts() {
 
 function filterByRange(data) {
   if (xRangeDays === 0) return data;
-  const cutoff = Date.now() - xRangeDays * 86400000;
+  // Use start-of-today minus (xRangeDays-1) days so today is always fully included
+  const today = new Date(); today.setHours(0,0,0,0);
+  const cutoff = today.getTime() - (xRangeDays - 1) * 86400000;
   return data.filter(r => r.ts >= cutoff);
 }
 
@@ -1306,13 +1345,22 @@ function openDataList() {
   showModal('datalist-modal');
 }
 
+let pendingDeleteIdx = null;
+
 function deleteRecord(idx) {
-  if (!confirm('この記録を削除しますか？')) return;
-  records.splice(idx, 1);
+  pendingDeleteIdx = idx;
+  showModal('delete-confirm-modal');
+}
+
+function confirmDeleteRecord() {
+  closeModal('delete-confirm-modal');
+  if (pendingDeleteIdx === null) return;
+  records.splice(pendingDeleteIdx, 1);
+  pendingDeleteIdx = null;
   save();
   toast('記録を削除しました');
-  openDataList();   // refresh list
-  renderChart();    // refresh chart in background
+  openDataList();
+  renderChart();
 }
 
 function openEditRecord(idx) {
@@ -1367,16 +1415,17 @@ function exportCSV() {
   closeModal('export-modal');
   const vis = getVisibleMetrics();
   if (!vis.length) { toast('出力するデータがありません'); return; }
+  const versionRow = '#BodyMassLog v' + APP_VERSION;
   const headers = ['日時', '日付', ...vis.map(m => m.name + '(' + (m.unit || '-') + ')')];
   const rows = [...records].sort((a,b) => a.ts - b.ts).map(r => [
     r.datetime || r.date, r.date, ...vis.map(m => r[m.key] ?? '')
   ]);
-  const csv = [headers, ...rows].map(r => r.join(',')).join('\n');
+  const csv = [versionRow, headers, ...rows].map(r => Array.isArray(r) ? r.join(',') : r).join('\n');
   const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = 'bodymasslog_' + new Date().toISOString().split('T')[0] + '.csv';
+  a.download = 'BodyMassLog.csv';
   a.click();
   URL.revokeObjectURL(url);
   toast('CSVをダウンロードしました ✓');
@@ -1449,19 +1498,42 @@ function triggerImportCSV() {
 function importCSV(input) {
   const file = input.files[0];
   if (!file) return;
-  closeModal('export-modal');
+  closeModal('datalist-modal');
 
   const reader = new FileReader();
   reader.onload = function(e) {
     try {
-      // Strip BOM if present
       let text = e.target.result.replace(/^\uFEFF/, '');
-      const lines = text.split(/\r?\n/).filter(l => l.trim() !== '');
-      if (lines.length < 2) { toast('データが見つかりませんでした'); return; }
+      const allLines = text.split(/\r?\n/).filter(l => l.trim() !== '');
+      if (allLines.length < 2) { showImportError('データが見つかりませんでした'); return; }
+
+      // Check version comment line
+      let lines = allLines;
+      if (allLines[0].startsWith('#BodyMassLog')) {
+        const csvVersion = allLines[0].replace('#BodyMassLog v', '').trim();
+        if (csvVersion !== APP_VERSION) {
+          const proceed = window.__importProceed; // set by version warning modal ok
+          if (!proceed) {
+            pendingImportText = text;
+            document.getElementById('import-version-msg').textContent =
+              'このCSVはv' + csvVersion + 'で作成されています（現在のアプリはv' + APP_VERSION + '）。正しく取り込めない可能性がありますが、続けますか？';
+            showModal('import-version-modal');
+            return;
+          }
+          window.__importProceed = false;
+        }
+        lines = allLines.slice(1); // skip version row
+      }
+
+      if (lines.length < 2) { showImportError('データが見つかりませんでした'); return; }
 
       const headers = lines[0].split(',').map(h => h.trim());
-      // Map header names to metric keys
-      // Expected: 日時, 日付, 体重(kg), 体脂肪率(%), 筋肉量(kg), BMI(-), 基礎代謝(kcal)
+      // Validate: must have 日時 and 日付 columns
+      if (headers[0] !== '日時' || headers[1] !== '日付') {
+        showImportError('CSVの形式が正しくありません。\nBodyMassLogからエクスポートしたCSVを使用してください。');
+        return;
+      }
+
       const colMap = {};
       headers.forEach((h, i) => {
         if (i === 0) { colMap['datetime'] = i; return; }
@@ -1472,40 +1544,40 @@ function importCSV(input) {
         });
       });
 
-      if (colMap['date'] === undefined) { toast('CSVの形式が正しくありません'); return; }
+      // Must have at least one metric column
+      const hasMetric = METRICS.some(m => colMap[m.key] !== undefined);
+      if (!hasMetric) {
+        showImportError('CSVの形式が正しくありません。\n記録データの列が見つかりませんでした。');
+        return;
+      }
 
-      let added = 0, skipped = 0;
-      // Collect existing timestamps for dedup
+      let added = 0, skipped = 0, errors = 0;
       const existingTs = new Set(records.map(r => r.ts));
 
-      lines.slice(1).forEach(line => {
+      lines.slice(1).forEach((line, lineIdx) => {
         const cols = line.split(',');
+        if (cols.length < 2) { errors++; return; }
         const dateStr = cols[colMap['date']]?.trim();
-        if (!dateStr) return;
+        if (!dateStr || !/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) { errors++; return; }
 
-        // Reconstruct timestamp from datetime col if available, else from date
         let ts;
         const dtStr = colMap['datetime'] !== undefined ? cols[colMap['datetime']]?.trim() : '';
         if (dtStr) {
-          // Try parsing Japanese locale datetime e.g. "2025/3/8 10:30:00"
           const parsed = new Date(dtStr.replace(/\//g, '-'));
-          ts = isNaN(parsed.getTime()) ? new Date(dateStr).getTime() : parsed.getTime();
+          ts = isNaN(parsed.getTime()) ? new Date(dateStr + 'T00:00:00').getTime() : parsed.getTime();
         } else {
           ts = new Date(dateStr + 'T00:00:00').getTime();
         }
-        if (isNaN(ts)) { skipped++; return; }
-
-        // Skip exact duplicate timestamps
+        if (isNaN(ts)) { errors++; return; }
         if (existingTs.has(ts)) { skipped++; return; }
 
         const rec = { ts, date: dateStr, datetime: dtStr || dateStr };
         METRICS.forEach(m => {
           if (colMap[m.key] !== undefined) {
             const val = parseFloat(cols[colMap[m.key]]);
-            if (!isNaN(val)) rec[m.key] = val;
+            if (!isNaN(val) && val > 0) rec[m.key] = val;
           }
         });
-        // Must have at least one metric value
         const hasVal = METRICS.some(m => rec[m.key] != null);
         if (!hasVal) { skipped++; return; }
 
@@ -1514,19 +1586,43 @@ function importCSV(input) {
         added++;
       });
 
-      // Sort by timestamp after import
+      if (added === 0 && errors > 0) {
+        showImportError('CSVの形式が正しくありません。\n有効なデータ行が見つかりませんでした。');
+        return;
+      }
+
       records.sort((a, b) => a.ts - b.ts);
       save();
-
       const msg = added + '件を取り込みました' + (skipped > 0 ? '（' + skipped + '件スキップ）' : '') + ' ✓';
       toast(msg);
       renderChart();
     } catch(err) {
-      toast('CSVの読み込みに失敗しました');
+      showImportError('CSVの読み込みに失敗しました。\nファイルが破損しているか、形式が正しくありません。');
       console.error(err);
     }
   };
   reader.readAsText(file, 'UTF-8');
+}
+
+let pendingImportText = null;
+
+function showImportError(msg) {
+  document.getElementById('import-error-msg').textContent = msg;
+  showModal('import-error-modal');
+}
+
+function proceedImportAfterVersionWarning() {
+  closeModal('import-version-modal');
+  window.__importProceed = true;
+  // Re-run import with the pending text
+  if (!pendingImportText) return;
+  const fakeInput = { files: [new Blob([pendingImportText], {type:'text/csv'})] };
+  fakeInput.files[0].name = 'import.csv';
+  // Directly call reader logic by creating a File object
+  const fakeFile = new File([pendingImportText], 'import.csv', {type:'text/csv'});
+  const fakeInputEl = { files: [fakeFile] };
+  pendingImportText = null;
+  importCSV(fakeInputEl);
 }
 
 // ========================================
