@@ -157,14 +157,13 @@
   .ctrl-btns { display: flex; gap: 6px; flex-wrap: wrap; }
   .seg-btn { padding: 5px 10px; border-radius: 6px; background: transparent; border: 1px solid var(--line2); color: var(--text2); font-family: 'DM Mono', monospace; font-size: 11px; cursor: pointer; transition: all .2s; white-space: nowrap; }
   .seg-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
-  .n-btn { width: 28px; height: 28px; border-radius: 7px; background: var(--bg4); border: 1px solid var(--line2); color: var(--text); font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all .15s; }
-  .n-btn:hover { background: var(--accent); border-color: var(--accent); }
-  .n-val { font-family: 'DM Mono', monospace; font-size: 18px; color: var(--accent2); min-width: 36px; text-align: center; }
-
-  /* TAB */
-  .tab-bar { display: flex; background: var(--bg3); border-radius: var(--r2); padding: 3px; margin-bottom: 12px; border: 1px solid var(--line); }
-  .tab-item { flex: 1; padding: 7px 4px; text-align: center; font-size: 11px; color: var(--text2); cursor: pointer; border-radius: 6px; transition: all .2s; font-family: 'DM Mono', monospace; }
-  .tab-item.active { background: var(--bg); color: var(--accent2); border: 1px solid var(--line2); }
+  /* SMOOTHNESS SLIDER */
+  .smooth-slider-wrap { display:flex; flex-direction:column; gap:8px; width:100%; }
+  .smooth-slider { -webkit-appearance:none; appearance:none; width:100%; height:4px; border-radius:99px; background:var(--line2); outline:none; cursor:pointer; }
+  .smooth-slider::-webkit-slider-thumb { -webkit-appearance:none; width:22px; height:22px; border-radius:50%; background:var(--accent); border:3px solid var(--bg); box-shadow:0 2px 8px rgba(0,0,0,0.5); cursor:pointer; }
+  .smooth-slider::-moz-range-thumb { width:22px; height:22px; border-radius:50%; background:var(--accent); border:3px solid var(--bg); cursor:pointer; }
+  .smooth-slider-labels { display:flex; justify-content:space-between; }
+  .smooth-slider-label { font-family:'DM Mono',monospace; font-size:10px; color:var(--text3); }
 
   /* TOAST */
   #toast { position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--bg3); border: 1px solid var(--line2); color: var(--text); padding: 12px 24px; border-radius: 99px; font-size: 13px; opacity: 0; transition: all .3s cubic-bezier(.4,0,.2,1); z-index: 1000; white-space: nowrap; box-shadow: var(--shadow); pointer-events: none; }
@@ -505,7 +504,7 @@ let settings = {
 let records = [];
 let chartInstances = {};
 let chartVisibility = {};
-let nDays = 3;
+let nDays = 0;
 let xRangeDays = 0;
 let yAxisMode = 'auto';
 let showGoalHLine = true;   // horizontal goal value line (always shown)
@@ -918,11 +917,6 @@ function renderChart() {
         <span class="record-count">${records.length} 件</span>
       </div>
 
-      <div class="tab-bar">
-        <div class="tab-item ${currentChartTab === 'all' ? 'active' : ''}" onclick="switchChartTab('all',this)">全期間</div>
-        <div class="tab-item ${currentChartTab === 'ma' ? 'active' : ''}" onclick="switchChartTab('ma',this)">移動平均</div>
-      </div>
-
       <div class="chart-controls">
         <div class="ctrl-row">
           <span class="ctrl-label">表示幅</span>
@@ -930,12 +924,20 @@ function renderChart() {
             ${xOpts.map(o => `<button class="seg-btn ${xRangeDays === o.val ? 'active' : ''}" onclick="setXRange(${o.val})">${o.label}</button>`).join('')}
           </div>
         </div>
-        <div class="ctrl-row" id="ma-ctrl" style="display:${currentChartTab === 'ma' ? '' : 'none'}">
-          <span class="ctrl-label">移動平均</span>
-          <button class="n-btn" onclick="changeN(-1)">-</button>
-          <span class="n-val" id="n-val">${nDays}</span>
-          <button class="n-btn" onclick="changeN(1)">+</button>
-          <span style="font-size:12px;color:var(--text3)">日</span>
+        <div class="ctrl-row" style="flex-direction:column;align-items:stretch;gap:10px">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span class="ctrl-label" style="min-width:auto">滑らかさ</span>
+          </div>
+          <div class="smooth-slider-wrap">
+            <input type="range" class="smooth-slider" id="smooth-slider"
+              min="0" max="7" step="1"
+              value="${[0,2,4,6,8,10,12,14].indexOf(nDays) < 0 ? 0 : [0,2,4,6,8,10,12,14].indexOf(nDays)}"
+              oninput="onSmoothnessChange(this.value)">
+            <div class="smooth-slider-labels">
+              <span class="smooth-slider-label">0%</span>
+              <span class="smooth-slider-label">100%</span>
+            </div>
+          </div>
         </div>
         <div class="ctrl-row">
           <span class="ctrl-label">縦軸の範囲</span>
@@ -971,7 +973,7 @@ function renderChart() {
     </button>
     <div style="height:40px"></div>`;
 
-  buildCharts(enabled, currentChartTab);
+  buildCharts();
 }
 
 function buildStatsHtml(enabled) {
@@ -990,81 +992,16 @@ function buildStatsHtml(enabled) {
 }
 
 // ========================================
-// BUILD CHARTS
+// BUILD CHARTS  (unified — nDays=0: raw data, nDays≥2: raw+smoothed)
 // ========================================
-function buildCharts(enabled, mode) {
+function buildCharts() {
   Object.values(chartInstances).forEach(c => { try { c.destroy(); } catch(e) {} });
   chartInstances = {};
-  const sorted = [...records].sort((a,b) => a.ts - b.ts);
-  if (mode === 'ma') buildMACharts(enabled, sorted);
-  else               buildAllCharts(enabled, sorted);
-}
+  const enabled = METRICS.filter(m => settings.metrics[m.key]);
+  const sorted  = [...records].sort((a,b) => a.ts - b.ts);
+  const data    = filterByRange(sorted);
 
-function filterByRange(data) {
-  if (xRangeDays === 0) return data;
-  const cutoff = Date.now() - xRangeDays * 86400000;
-  return data.filter(r => r.ts >= cutoff);
-}
-
-// ========================================
-// ALL-PERIOD CHART
-// ========================================
-function buildAllCharts(enabled, sortedData) {
-  const data = filterByRange(sortedData);
-  const baseLabels = data.map(r => {
-    const d = new Date(r.ts);
-    return (d.getMonth() + 1) + '/' + d.getDate();
-  });
-
-  enabled.forEach(m => {
-    const canvas = document.getElementById('chart-' + m.key);
-    if (!canvas || !chartVisibility[m.key]) return;
-
-    const vals = data.map(r => r[m.key] ?? null);
-    const { datasets: goalDatasets, extraLabels } = buildGoalDatasets(m, data, baseLabels);
-    const allLabels = [...baseLabels, ...extraLabels];
-    // Pad main data with nulls for extra x-axis points
-    const paddedVals = [...vals, ...extraLabels.map(() => null)];
-    // Also pad goal datasets that are shorter than allLabels
-    goalDatasets.forEach(ds => {
-      while (ds.data.length < allLabels.length) ds.data.push(null);
-    });
-
-    chartInstances[m.key] = new Chart(canvas, {
-      type: 'line',
-      data: {
-        labels: allLabels,
-        datasets: [
-          {
-            label: m.name,
-            data: paddedVals,
-            borderColor: m.color,
-            backgroundColor: m.color + '22',
-            borderWidth: 2,
-            pointRadius: data.length > 60 ? 0 : 4,
-            pointBackgroundColor: m.color,
-            pointBorderColor: '#0a0a0f',
-            pointBorderWidth: 2,
-            tension: 0.3,
-            fill: true,
-            spanGaps: true,
-            order: 1
-          },
-          ...goalDatasets
-        ]
-      },
-      options: buildChartOptions(m)
-    });
-  });
-}
-
-// ========================================
-// MOVING AVERAGE CHART
-// ========================================
-function buildMACharts(enabled, sortedData) {
-  const data = filterByRange(sortedData);
-
-  // Step 1: aggregate to daily averages
+  // Daily aggregation (always needed for smoothing; also cleaner for raw display)
   const dailyMap = {};
   data.forEach(r => {
     if (!dailyMap[r.date]) dailyMap[r.date] = {};
@@ -1080,22 +1017,21 @@ function buildMACharts(enabled, sortedData) {
     const entry = { date, ts: new Date(date + 'T00:00:00').getTime() };
     METRICS.forEach(m => {
       const arr = dailyMap[date][m.key];
-      entry[m.key] = arr ? Math.round(arr.reduce((a,b) => a+b, 0) / arr.length * 100) / 100 : null;
+      entry[m.key] = arr ? Math.round(arr.reduce((a,b)=>a+b,0)/arr.length*100)/100 : null;
     });
     return entry;
   });
 
-  // Step 2: n-day moving average
   function movingAvg(arr, n) {
-    return arr.map((_, i) => {
-      const win = arr.slice(Math.max(0, i - n + 1), i + 1).filter(v => v != null);
-      return win.length ? Math.round(win.reduce((a,b) => a+b, 0) / win.length * 100) / 100 : null;
+    return arr.map((_,i) => {
+      const win = arr.slice(Math.max(0, i-n+1), i+1).filter(v => v != null);
+      return win.length ? Math.round(win.reduce((a,b)=>a+b,0)/win.length*100)/100 : null;
     });
   }
 
   const baseLabels = dailyData.map(d => {
-    const [, mo, da] = d.date.split('-');
-    return parseInt(mo) + '/' + parseInt(da);
+    const [,mo,da] = d.date.split('-');
+    return parseInt(mo)+'/'+parseInt(da);
   });
 
   enabled.forEach(m => {
@@ -1103,58 +1039,88 @@ function buildMACharts(enabled, sortedData) {
     if (!canvas || !chartVisibility[m.key]) return;
 
     const rawVals = dailyData.map(d => d[m.key]);
-    const maVals  = movingAvg(rawVals, nDays);
 
-    // Last MA value (last non-null) as anchor for goal projection
-    let lastMAVal = null;
-    for (let i = maVals.length - 1; i >= 0; i--) {
-      if (maVals[i] != null) { lastMAVal = maVals[i]; break; }
+    // Anchor for goal line: last MA value when smoothed, else last raw value
+    let anchorVal = null;
+    if (nDays >= 2) {
+      const ma = movingAvg(rawVals, nDays);
+      for (let i = ma.length-1; i >= 0; i--) { if (ma[i] != null) { anchorVal = ma[i]; break; } }
+    } else {
+      for (let i = rawVals.length-1; i >= 0; i--) { if (rawVals[i] != null) { anchorVal = rawVals[i]; break; } }
     }
 
-    const { datasets: goalDatasets, extraLabels } = buildGoalDatasets(m, dailyData, baseLabels, lastMAVal);
-    const allLabels = [...baseLabels, ...extraLabels];
-    const paddedRaw = [...rawVals, ...extraLabels.map(() => null)];
-    const paddedMA  = [...maVals,  ...extraLabels.map(() => null)];
-    goalDatasets.forEach(ds => {
-      while (ds.data.length < allLabels.length) ds.data.push(null);
-    });
+    const { datasets: goalDatasets, extraLabels } = buildGoalDatasets(m, dailyData, baseLabels, nDays >= 2 ? anchorVal : undefined);
+    const allLabels  = [...baseLabels, ...extraLabels];
+    const paddedRaw  = [...rawVals, ...extraLabels.map(()=>null)];
+    goalDatasets.forEach(ds => { while (ds.data.length < allLabels.length) ds.data.push(null); });
+
+    let datasets;
+    if (nDays === 0) {
+      // Raw data only
+      datasets = [
+        {
+          label: m.name,
+          data: paddedRaw,
+          borderColor: m.color,
+          backgroundColor: m.color + '22',
+          borderWidth: 2,
+          pointRadius: dailyData.length > 60 ? 0 : 4,
+          pointBackgroundColor: m.color,
+          pointBorderColor: '#0a0a0f',
+          pointBorderWidth: 2,
+          tension: 0.3,
+          fill: true,
+          spanGaps: true,
+          order: 1
+        },
+        ...goalDatasets
+      ];
+    } else {
+      // Raw (faint) + smoothed line
+      const maVals   = movingAvg(rawVals, nDays);
+      const paddedMA = [...maVals, ...extraLabels.map(()=>null)];
+      datasets = [
+        {
+          label: m.name + ' (日次)',
+          data: paddedRaw,
+          borderColor: m.color + '44',
+          backgroundColor: 'transparent',
+          borderWidth: 1,
+          pointRadius: dailyData.length > 60 ? 0 : 2,
+          pointBackgroundColor: m.color + '66',
+          tension: 0.2,
+          spanGaps: true,
+          borderDash: [3,4],
+          order: 2
+        },
+        {
+          label: m.name + ' (滑らか)',
+          data: paddedMA,
+          borderColor: m.color,
+          backgroundColor: m.color + '22',
+          borderWidth: 2.5,
+          pointRadius: 0,
+          tension: 0.4,
+          fill: true,
+          spanGaps: true,
+          order: 1
+        },
+        ...goalDatasets
+      ];
+    }
 
     chartInstances[m.key] = new Chart(canvas, {
       type: 'line',
-      data: {
-        labels: allLabels,
-        datasets: [
-          {
-            label: m.name + ' 日次平均',
-            data: paddedRaw,
-            borderColor: m.color + '55',
-            backgroundColor: 'transparent',
-            borderWidth: 1,
-            pointRadius: 2,
-            pointBackgroundColor: m.color + '88',
-            tension: 0.2,
-            spanGaps: true,
-            borderDash: [3, 4],
-            order: 2
-          },
-          {
-            label: m.name + ' ' + nDays + '日移動平均',
-            data: paddedMA,
-            borderColor: m.color,
-            backgroundColor: m.color + '22',
-            borderWidth: 2.5,
-            pointRadius: 0,
-            tension: 0.4,
-            fill: true,
-            spanGaps: true,
-            order: 1
-          },
-          ...goalDatasets
-        ]
-      },
+      data: { labels: allLabels, datasets },
       options: buildChartOptions(m)
     });
   });
+}
+
+function filterByRange(data) {
+  if (xRangeDays === 0) return data;
+  const cutoff = Date.now() - xRangeDays * 86400000;
+  return data.filter(r => r.ts >= cutoff);
 }
 
 // ========================================
@@ -1269,30 +1235,23 @@ function buildChartOptions(m) {
 // ========================================
 // CHART CONTROLS
 // ========================================
-function switchChartTab(mode, el) {
-  currentChartTab = mode;
-  document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
-  el.classList.add('active');
-  const mc = document.getElementById('ma-ctrl');
-  if (mc) mc.style.display = mode === 'ma' ? '' : 'none';
-  buildCharts(METRICS.filter(m => settings.metrics[m.key]), mode);
-}
+// ========================================
+// CHART CONTROLS
+// ========================================
+const SMOOTH_STEPS = [0, 2, 4, 6, 8, 10, 12, 14];
 
-function changeN(delta) {
-  nDays = Math.max(2, Math.min(365, nDays + delta));
-  const el = document.getElementById('n-val');
-  if (el) el.textContent = nDays;
-  if (currentChartTab === 'ma') buildCharts(METRICS.filter(m => settings.metrics[m.key]), 'ma');
+function onSmoothnessChange(idx) {
+  nDays = SMOOTH_STEPS[parseInt(idx)];
+  buildCharts();
 }
 
 function setXRange(val) {
   xRangeDays = val;
-  // Update all seg-btn active states for xRange
   document.querySelectorAll('.seg-btn').forEach(b => {
     const match = b.getAttribute('onclick')?.match(/^setXRange\((\d+)\)$/);
     if (match) b.classList.toggle('active', parseInt(match[1]) === val);
   });
-  buildCharts(METRICS.filter(m => settings.metrics[m.key]), currentChartTab);
+  buildCharts();
 }
 
 function setYMode(mode) {
@@ -1301,7 +1260,7 @@ function setYMode(mode) {
     const match = b.getAttribute('onclick')?.match(/^setYMode\('(\w+)'\)$/);
     if (match) b.classList.toggle('active', match[1] === mode);
   });
-  buildCharts(METRICS.filter(m => settings.metrics[m.key]), currentChartTab);
+  buildCharts();
 }
 
 function toggleChartVisibility(key) {
@@ -1310,7 +1269,7 @@ function toggleChartVisibility(key) {
   const card = document.getElementById('chart-card-' + key);
   if (card) card.style.display = chartVisibility[key] ? '' : 'none';
   if (chartVisibility[key]) {
-    buildCharts(METRICS.filter(m => settings.metrics[m.key]), currentChartTab);
+    buildCharts();
   } else {
     if (chartInstances[key]) { chartInstances[key].destroy(); delete chartInstances[key]; }
   }
