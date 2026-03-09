@@ -238,7 +238,7 @@
     <div>
       <div class="topbar-logo">BodyMassLog</div>
       <div class="topbar-subtitle">SETTINGS</div>
-      <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);margin-left:6px;align-self:flex-end;padding-bottom:2px">v1.4</span>
+      <span id="ver-settings" style="font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);margin-left:6px;align-self:flex-end;padding-bottom:2px"></span>
     </div>
     <div style="width:38px"></div>
   </div>
@@ -301,7 +301,7 @@
 <div class="screen" id="screen-record">
   <div class="topbar">
     <div class="topbar-logo">BodyMassLog</div>
-    <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);align-self:flex-end;padding-bottom:3px;margin-left:6px">v1.4</span>
+    <span id="ver-record" style="font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);align-self:flex-end;padding-bottom:3px;margin-left:6px"></span>
     <div style="flex:1"></div>
     <button class="icon-btn" onclick="goSettings()" title="設定">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
@@ -359,7 +359,7 @@
     <div>
       <div class="topbar-logo">BodyMassLog</div>
       <div class="topbar-subtitle">ANALYTICS</div>
-      <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);margin-left:6px;align-self:flex-end;padding-bottom:2px">v1.4</span>
+      <span id="ver-chart" style="font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);margin-left:6px;align-self:flex-end;padding-bottom:2px"></span>
     </div>
     <button class="icon-btn" onclick="goSettings()" title="設定">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
@@ -503,7 +503,7 @@
 
 <script>
 // ========================================
-const APP_VERSION = '1.4';
+const APP_VERSION = '1.5';
 // CONSTANTS
 // ========================================
 const METRICS = [
@@ -543,8 +543,6 @@ let chartInstances = {};
 let chartVisibility = {};
 let xRangeDays = 0;
 let yAxisMode = 'auto';
-let showGoalHLine = true;   // horizontal goal value line (always shown)
-let currentChartTab = 'all';
 let clockInterval = null;
 let dateOverride = null;
 let editingRecordIdx = null;
@@ -660,7 +658,7 @@ function applyDateOverride() {
   if (timeVal) {
     if (dt.getTime() > now.getTime()) { toast('未来の日時は指定できません'); return; }
   } else {
-    const todayStr = now.toISOString().split('T')[0];
+    const todayStr = localDateStr(now.getTime());
     if (dateVal > todayStr) { toast('未来の日付は指定できません'); return; }
   }
   const [y, mo, d] = dateVal.split('-');
@@ -693,7 +691,7 @@ function renderSettings() {
   // Goal date min = tomorrow
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
-  document.getElementById('s-goal-date').min = tomorrow.toISOString().split('T')[0];
+  document.getElementById('s-goal-date').min = localDateStr(tomorrow.getTime());
 
   document.getElementById('metric-toggles').innerHTML = METRICS.map(m => `
     <div class="toggle-row">
@@ -715,7 +713,7 @@ function toggleMetric(key) {
 // ========================================
 function renderRecord() {
   // Set default date in modal
-  const today = new Date().toISOString().split('T')[0];
+  const today = localDateStr(Date.now());
   const di = document.getElementById('override-date');
   if (di && !di.value) di.value = today;
   // Set max date to today to prevent future date selection
@@ -1098,16 +1096,7 @@ function buildCharts() {
 
     const rawVals = dailyData.map(d => d[m.key]);
 
-    // Anchor for goal line: last MA value when smoothed, else last raw value
-    let anchorVal = null;
-    if (settings.smoothness >= 2) {
-      const ma = movingAvg(rawVals, settings.smoothness);
-      for (let i = ma.length-1; i >= 0; i--) { if (ma[i] != null) { anchorVal = ma[i]; break; } }
-    } else {
-      for (let i = rawVals.length-1; i >= 0; i--) { if (rawVals[i] != null) { anchorVal = rawVals[i]; break; } }
-    }
-
-    const { datasets: goalDatasets, extraLabels } = buildGoalDatasets(m, dailyData, baseLabels, settings.smoothness >= 2 ? anchorVal : undefined);
+    const { datasets: goalDatasets, extraLabels } = buildGoalDatasets(m, dailyData, baseLabels);
     const allLabels  = [...baseLabels, ...extraLabels];
     const paddedRaw  = [...rawVals, ...extraLabels.map(()=>null)];
     goalDatasets.forEach(ds => { while (ds.data.length < allLabels.length) ds.data.push(null); });
@@ -1188,7 +1177,7 @@ function filterByRange(data) {
 // Returns { datasets, extraLabels }
 // extraLabels: additional x-axis labels to append (e.g. goal date)
 // ========================================
-function buildGoalDatasets(m, data, baseLabels, overrideLastVal) {
+function buildGoalDatasets(m, data, baseLabels) {
   const datasets = [];
   const extraLabels = [];
 
@@ -1202,7 +1191,7 @@ function buildGoalDatasets(m, data, baseLabels, overrideLastVal) {
   const baseLen = baseLabels.length;
 
   // ── 1. Horizontal goal value line ──────────────────────────────
-  if (showGoalHLine && goalVal != null) {
+  if (goalVal != null) {
     datasets.push({
       label: '目標値 ' + goalVal + m.unit,
       data: Array(baseLen).fill(goalVal),
@@ -1292,9 +1281,6 @@ function buildChartOptions(m) {
   };
 }
 
-// ========================================
-// CHART CONTROLS
-// ========================================
 // ========================================
 // CHART CONTROLS
 // ========================================
@@ -1636,15 +1622,10 @@ function showImportError(msg) {
 function proceedImportAfterVersionWarning() {
   closeModal('import-version-modal');
   window.__importProceed = true;
-  // Re-run import with the pending text
   if (!pendingImportText) return;
-  const fakeInput = { files: [new Blob([pendingImportText], {type:'text/csv'})] };
-  fakeInput.files[0].name = 'import.csv';
-  // Directly call reader logic by creating a File object
   const fakeFile = new File([pendingImportText], 'import.csv', {type:'text/csv'});
-  const fakeInputEl = { files: [fakeFile] };
   pendingImportText = null;
-  importCSV(fakeInputEl);
+  importCSV({ files: [fakeFile] });
 }
 
 // ========================================
@@ -1671,6 +1652,11 @@ function toast(msg) {
 // INIT
 // ========================================
 load();
+// Set version label in all topbars from APP_VERSION constant
+['ver-settings','ver-record','ver-chart'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.textContent = 'v' + APP_VERSION;
+});
 if (!settings.initialized) { renderSettings(); showScreen('settings'); }
 else goRecord();
 </script>
