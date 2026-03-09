@@ -552,9 +552,26 @@ let editingRecordIdx = null;
 // ========================================
 // PERSIST
 // ========================================
+function localDateStr(ts) {
+  const d = new Date(ts);
+  const yy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  return yy + '-' + mm + '-' + dd;
+}
+
 function load() {
   try { const s = JSON.parse(localStorage.getItem('bml_settings')); if (s) settings = {...settings, ...s}; } catch(e) {}
   try { const r = JSON.parse(localStorage.getItem('bml_records'));   if (r) records  = r; } catch(e) {}
+  // Migration: fix dates saved using UTC (toISOString) instead of local timezone.
+  // Runs every load but only rewrites records that are actually wrong.
+  let migrated = false;
+  records.forEach(r => {
+    if (!r.ts) return;
+    const correct = localDateStr(r.ts);
+    if (r.date !== correct) { r.date = correct; migrated = true; }
+  });
+  if (migrated) localStorage.setItem('bml_records', JSON.stringify(records));
   METRICS.forEach(m => {
     if (chartVisibility[m.key] === undefined) chartVisibility[m.key] = true;
   });
@@ -816,7 +833,9 @@ function saveRecord() {
     ts = dateOverride.ts; date = dateOverride.date; datetime = dateOverride.datetime;
   } else {
     const now = new Date();
-    ts = now.getTime(); date = now.toISOString().split('T')[0]; datetime = now.toLocaleString('ja-JP');
+    ts = now.getTime();
+    date = localDateStr(ts);
+    datetime = now.toLocaleString('ja-JP');
   }
   const rec = { ts, date, datetime };
   let hasData = false;
@@ -914,6 +933,7 @@ function closeCelebrationGoToSettings() {
 // CHART SCREEN
 // ========================================
 function renderChart() {
+  // Destroy all chart instances before replacing DOM
   Object.values(chartInstances).forEach(c => { try { c.destroy(); } catch(e) {} });
   chartInstances = {};
 
@@ -1010,7 +1030,8 @@ function renderChart() {
     </button>
     <div style="height:40px"></div>`;
 
-  buildCharts();
+  // Defer to ensure canvas elements are in DOM before Chart.js runs
+  setTimeout(() => buildCharts(), 0);
 }
 
 function buildStatsHtml(enabled) {
