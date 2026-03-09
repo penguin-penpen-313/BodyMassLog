@@ -535,12 +535,12 @@ let settings = {
   goalBmi: null,
   goalDate: null,
   metrics: { weight:true, fat:false, muscle:false, bmi:false, bmr:false },
+  smoothness: 0,
   initialized: false
 };
 let records = [];
 let chartInstances = {};
 let chartVisibility = {};
-let nDays = 0;
 let xRangeDays = 0;
 let yAxisMode = 'auto';
 let showGoalHLine = true;   // horizontal goal value line (always shown)
@@ -968,7 +968,7 @@ function renderChart() {
           <div class="smooth-slider-wrap">
             <input type="range" class="smooth-slider" id="smooth-slider"
               min="0" max="7" step="1"
-              value="${[0,2,4,6,8,10,12,14].indexOf(nDays) < 0 ? 0 : [0,2,4,6,8,10,12,14].indexOf(nDays)}"
+              value="${[0,2,4,6,8,10,12,14].indexOf(settings.smoothness) < 0 ? 0 : [0,2,4,6,8,10,12,14].indexOf(settings.smoothness)}"
               oninput="onSmoothnessChange(this.value)">
             <div class="smooth-slider-labels">
               <span class="smooth-slider-label">0%</span>
@@ -1029,7 +1029,7 @@ function buildStatsHtml(enabled) {
 }
 
 // ========================================
-// BUILD CHARTS  (unified — nDays=0: raw data, nDays≥2: raw+smoothed)
+// BUILD CHARTS  (unified — settings.smoothness=0: raw data, settings.smoothness≥2: raw+smoothed)
 // ========================================
 function buildCharts() {
   Object.values(chartInstances).forEach(c => { try { c.destroy(); } catch(e) {} });
@@ -1079,20 +1079,20 @@ function buildCharts() {
 
     // Anchor for goal line: last MA value when smoothed, else last raw value
     let anchorVal = null;
-    if (nDays >= 2) {
-      const ma = movingAvg(rawVals, nDays);
+    if (settings.smoothness >= 2) {
+      const ma = movingAvg(rawVals, settings.smoothness);
       for (let i = ma.length-1; i >= 0; i--) { if (ma[i] != null) { anchorVal = ma[i]; break; } }
     } else {
       for (let i = rawVals.length-1; i >= 0; i--) { if (rawVals[i] != null) { anchorVal = rawVals[i]; break; } }
     }
 
-    const { datasets: goalDatasets, extraLabels } = buildGoalDatasets(m, dailyData, baseLabels, nDays >= 2 ? anchorVal : undefined);
+    const { datasets: goalDatasets, extraLabels } = buildGoalDatasets(m, dailyData, baseLabels, settings.smoothness >= 2 ? anchorVal : undefined);
     const allLabels  = [...baseLabels, ...extraLabels];
     const paddedRaw  = [...rawVals, ...extraLabels.map(()=>null)];
     goalDatasets.forEach(ds => { while (ds.data.length < allLabels.length) ds.data.push(null); });
 
     let datasets;
-    if (nDays === 0) {
+    if (settings.smoothness === 0) {
       // Raw data only
       datasets = [
         {
@@ -1114,7 +1114,7 @@ function buildCharts() {
       ];
     } else {
       // Raw (faint) + smoothed line
-      const maVals   = movingAvg(rawVals, nDays);
+      const maVals   = movingAvg(rawVals, settings.smoothness);
       const paddedMA = [...maVals, ...extraLabels.map(()=>null)];
       datasets = [
         {
@@ -1280,7 +1280,8 @@ function buildChartOptions(m) {
 const SMOOTH_STEPS = [0, 2, 4, 6, 8, 10, 12, 14];
 
 function onSmoothnessChange(idx) {
-  nDays = SMOOTH_STEPS[parseInt(idx)];
+  settings.smoothness = SMOOTH_STEPS[parseInt(idx)];
+  save();
   buildCharts();
 }
 
