@@ -464,8 +464,8 @@
     <div class="modal-handle"></div>
     <div style="font-size:52px;margin-bottom:8px">&#127881;</div>
     <div id="celebration-msg" style="font-size:15px;color:var(--text);line-height:1.7;margin-bottom:20px"></div>
-    <button class="btn btn-primary" onclick="closeCelebrationGoToSettings()">新しい目標を設定する</button>
-    <button class="btn btn-ghost" onclick="closeModal('celebration-modal');goChart()" style="margin-top:10px">後で設定する</button>
+    <button class="btn btn-primary" onclick="closeCelebrationGoToSettings()">目標を更新する</button>
+    <button class="btn btn-ghost" onclick="closeModal('celebration-modal');goChart()" style="margin-top:10px">このまま続ける</button>
   </div>
 </div>
 
@@ -503,7 +503,7 @@
 
 <script>
 // ========================================
-const APP_VERSION = '1.5';
+const APP_VERSION = '1.5.1';
 // CONSTANTS
 // ========================================
 const METRICS = [
@@ -534,6 +534,8 @@ let settings = {
   goalMuscle: null,
   goalBmi: null,
   goalDate: null,
+  goalBaseVal: {},   // value at time goal was set, per metric key
+  goalAchieved: {}, // whether goal has been celebrated, per metric key
   metrics: { weight:true, fat:false, muscle:false, bmi:false, bmr:false },
   smoothness: 0,
   initialized: false
@@ -592,12 +594,32 @@ function goChart()    { renderChart(); showScreen('chart'); stopClock(); }
 
 function saveSettings() {
   const toPos = id => { const v = parseFloat(document.getElementById(id).value); return (v > 0) ? v : null; };
+  const newGoals = {
+    weight: toPos('s-goal-weight'),
+    fat:    toPos('s-goal-fat'),
+    muscle: toPos('s-goal-muscle'),
+    bmi:    toPos('s-goal-bmi'),
+  };
+  // For each goal: if value changed (or newly set), record current latest value as base
+  // and reset achieved flag so celebration can fire again
+  const last = records.length ? [...records].sort((a,b) => b.ts - a.ts)[0] : null;
+  ['weight','fat','muscle','bmi'].forEach(key => {
+    const oldGoal = settings['goal' + key.charAt(0).toUpperCase() + key.slice(1)];
+    const newGoal = newGoals[key];
+    if (newGoal !== oldGoal) {
+      // Goal changed or cleared — update base value and reset achieved flag
+      settings.goalBaseVal  = settings.goalBaseVal  || {};
+      settings.goalAchieved = settings.goalAchieved || {};
+      settings.goalBaseVal[key]  = (last && last[key] != null) ? last[key] : null;
+      settings.goalAchieved[key] = false;
+    }
+  });
   settings.height     = toPos('s-height');
   settings.gender     = document.getElementById('s-gender').value || '';
-  settings.goalWeight = toPos('s-goal-weight');
-  settings.goalFat    = toPos('s-goal-fat');
-  settings.goalMuscle = toPos('s-goal-muscle');
-  settings.goalBmi    = toPos('s-goal-bmi');
+  settings.goalWeight = newGoals.weight;
+  settings.goalFat    = newGoals.fat;
+  settings.goalMuscle = newGoals.muscle;
+  settings.goalBmi    = newGoals.bmi;
   settings.goalDate   = document.getElementById('s-goal-date').value || null;
   settings.initialized = true;
   save();
@@ -847,6 +869,21 @@ function saveRecord() {
     if (bmi !== null) rec['bmi'] = bmi;
   }
   records.push(rec);
+  // ── 目標ベース値の初回確定 ──────────────────────
+  // goalBaseVal[key] が null のまま（目標設定時に記録がなかった）なら
+  // この記録を初回基準値として登録する（方向判定に使う）
+  let baseChanged = false;
+  if (!settings.goalBaseVal)  settings.goalBaseVal  = {};
+  if (!settings.goalAchieved) settings.goalAchieved = {};
+  ['weight','fat','muscle','bmi'].forEach(key => {
+    const goalKey = 'goal' + key.charAt(0).toUpperCase() + key.slice(1);
+    if (settings[goalKey] == null) return;           // 目標未設定
+    if (settings.goalAchieved[key]) return;          // 達成済み
+    if (settings.goalBaseVal[key] != null) return;   // 既に基準値あり
+    if (rec[key] == null) return;                    // この記録に該当値なし
+    settings.goalBaseVal[key] = rec[key];
+    baseChanged = true;
+  });
   save();
   toast('記録しました ✓');
   METRICS.forEach(m => { const el = document.getElementById('inp-' + m.key); if (el) el.value = ''; });
@@ -855,7 +892,8 @@ function saveRecord() {
   if (settings.metrics['bmi']) updateBmiDisplay();
 
   // ── 目標達成チェック ──────────────────────────
-  const achieved = checkGoalAchieved(rec);
+  // baseChanged=true の場合、この記録が初回基準値を確定させた記録なので達成チェックしない
+  const achieved = baseChanged ? [] : checkGoalAchieved(rec);
   if (achieved.length) {
     setTimeout(() => showGoalCelebration(achieved), 700);
   } else {
@@ -869,33 +907,42 @@ function checkGoalAchieved(rec) {
   const results = [];
   const goalDate = settings.goalDate ? new Date(settings.goalDate + 'T00:00:00') : null;
   const isEarly = goalDate && new Date(rec.date + 'T00:00:00') < goalDate;
+  const base  = settings.goalBaseVal  || {};
+  const achieved = settings.goalAchieved || {};
 
-  const checks = [
-    { key: 'weight', goal: settings.goalWeight,
-      reached: (v, g) => v <= g },   // 体重は以下で達成
-    { key: 'fat',    goal: settings.goalFat,
-      reached: (v, g) => v <= g },   // 体脂肪率は以下
-    { key: 'muscle', goal: settings.goalMuscle,
-      reached: (v, g) => v >= g },   // 筋肉量は以上
-    { key: 'bmi',    goal: settings.goalBmi,
-      // BMI目標達成：目標BMIに近づく方向（目標<現在なら下回る、目標>現在なら上回る）
-      reached: (v, g) => Math.abs(v - g) < 0.5 },
-  ];
+  const goalMap = { weight: settings.goalWeight, fat: settings.goalFat, muscle: settings.goalMuscle, bmi: settings.goalBmi };
 
-  checks.forEach(({ key, goal, reached }) => {
-    if (goal == null) return;
+  Object.entries(goalMap).forEach(([key, goalVal]) => {
+    if (goalVal == null) return;
     if (rec[key] == null) return;
     if (!settings.metrics[key]) return;
-    if (reached(rec[key], goal)) {
+    if (achieved[key]) return; // already celebrated for this goal setting
+
+    const baseVal = base[key];
+    if (baseVal == null) return; // base not yet established
+
+    const cur = rec[key];
+    // Direction: if base > goal → need to go DOWN (e.g. weight loss)
+    //            if base < goal → need to go UP   (e.g. muscle gain)
+    //            if base === goal → already at goal, skip
+    let reached = false;
+    if (baseVal > goalVal) {
+      reached = cur <= goalVal;
+    } else if (baseVal < goalVal) {
+      reached = cur >= goalVal;
+    }
+    // BMI: use ±0.5 proximity regardless of direction
+    if (key === 'bmi') reached = Math.abs(cur - goalVal) < 0.5;
+
+    if (reached) {
       const m = METRICS.find(m => m.key === key);
-      results.push({ metric: m, goalVal: goal, isEarly });
+      results.push({ metric: m, goalVal, isEarly, key });
     }
   });
   return results;
 }
 
 function showGoalCelebration(achieved) {
-  // Build message for each achieved goal
   const messages = achieved.map(({ metric, goalVal, isEarly }) => {
     if (isEarly) {
       return '&#127881; おめでとうございます！\n予定より早く' + metric.name + 'が目標値' + goalVal + metric.unit + 'に到達しました！すごいです！';
@@ -903,20 +950,14 @@ function showGoalCelebration(achieved) {
       return '&#127881; おめでとうございます！\n' + metric.name + 'が目標値' + goalVal + metric.unit + 'に到達しました！';
     }
   });
-  messages.push('新しい目標値を設定しましょう！');
+  messages.push('次の目標を設定しましょう！');
 
-  // Reset achieved goal fields in settings
-  achieved.forEach(({ metric }) => {
-    if (metric.key === 'weight') settings.goalWeight = null;
-    if (metric.key === 'fat')    settings.goalFat    = null;
-    if (metric.key === 'muscle') settings.goalMuscle = null;
-    if (metric.key === 'bmi')    settings.goalBmi    = null;
-  });
-  // Reset goal date
-  settings.goalDate = null;
+  // Mark as achieved so celebration won't fire again for this goal
+  if (!settings.goalAchieved) settings.goalAchieved = {};
+  achieved.forEach(({ key }) => { settings.goalAchieved[key] = true; });
+  // NOTE: goal values and goalDate are NOT reset
   save();
 
-  // Show celebration modal
   document.getElementById('celebration-msg').innerHTML =
     messages.map(msg => '<p style="margin-bottom:12px;white-space:pre-line">' + msg + '</p>').join('');
   showModal('celebration-modal');
@@ -1057,7 +1098,25 @@ function buildCharts() {
   const sorted  = [...records].sort((a,b) => a.ts - b.ts);
   const data    = filterByRange(sorted);
 
-  // Daily aggregation (always needed for smoothing; also cleaner for raw display)
+  // --- Raw points: each record is one X-axis point ---
+  // Label: "M/D HH:MM" when multiple records on the same day, else "M/D"
+  const dateCounts = {};
+  data.forEach(r => { dateCounts[r.date] = (dateCounts[r.date] || 0) + 1; });
+
+  const rawLabels = data.map(r => {
+    const [,mo,da] = r.date.split('-');
+    const base = parseInt(mo) + '/' + parseInt(da);
+    if (dateCounts[r.date] > 1) {
+      // Include time from datetime or ts
+      const d = new Date(r.ts);
+      const hh = String(d.getHours()).padStart(2,'0');
+      const mm = String(d.getMinutes()).padStart(2,'0');
+      return base + ' ' + hh + ':' + mm;
+    }
+    return base;
+  });
+
+  // --- Daily aggregation for moving average only ---
   const dailyMap = {};
   data.forEach(r => {
     if (!dailyMap[r.date]) dailyMap[r.date] = {};
@@ -1078,6 +1137,8 @@ function buildCharts() {
     return entry;
   });
 
+  // Build a per-record moving average by mapping each raw record to
+  // its day's position in dailyData, then running MA on the daily series
   function movingAvg(arr, n) {
     return arr.map((_,i) => {
       const win = arr.slice(Math.max(0, i-n+1), i+1).filter(v => v != null);
@@ -1085,25 +1146,30 @@ function buildCharts() {
     });
   }
 
-  const baseLabels = dailyData.map(d => {
-    const [,mo,da] = d.date.split('-');
-    return parseInt(mo)+'/'+parseInt(da);
-  });
+  // Map raw records to their MA value:
+  // compute MA on dailyData, then assign each raw record the MA value of its date
+  function buildMaForRaw(metricKey) {
+    const dailyVals = dailyData.map(d => d[metricKey]);
+    const ma = movingAvg(dailyVals, settings.smoothness);
+    const dateToMa = {};
+    days.forEach((date, i) => { dateToMa[date] = ma[i]; });
+    return data.map(r => dateToMa[r.date] ?? null);
+  }
 
   enabled.forEach(m => {
     const canvas = document.getElementById('chart-' + m.key);
     if (!canvas || !chartVisibility[m.key]) return;
 
-    const rawVals = dailyData.map(d => d[m.key]);
+    const rawVals = data.map(r => r[m.key] ?? null);
+    const totalPts = data.length;
 
-    const { datasets: goalDatasets, extraLabels } = buildGoalDatasets(m, dailyData, baseLabels);
-    const allLabels  = [...baseLabels, ...extraLabels];
-    const paddedRaw  = [...rawVals, ...extraLabels.map(()=>null)];
+    const { datasets: goalDatasets, extraLabels } = buildGoalDatasets(m, data, rawLabels);
+    const allLabels = [...rawLabels, ...extraLabels];
+    const paddedRaw = [...rawVals, ...extraLabels.map(()=>null)];
     goalDatasets.forEach(ds => { while (ds.data.length < allLabels.length) ds.data.push(null); });
 
     let datasets;
     if (settings.smoothness === 0) {
-      // Raw data only
       datasets = [
         {
           label: m.name,
@@ -1111,7 +1177,7 @@ function buildCharts() {
           borderColor: m.color,
           backgroundColor: m.color + '22',
           borderWidth: 2,
-          pointRadius: dailyData.length > 60 ? 0 : 4,
+          pointRadius: totalPts > 60 ? 0 : 4,
           pointBackgroundColor: m.color,
           pointBorderColor: '#0a0a0f',
           pointBorderWidth: 2,
@@ -1123,9 +1189,8 @@ function buildCharts() {
         ...goalDatasets
       ];
     } else {
-      // Raw (faint) + smoothed line
-      const maVals   = movingAvg(rawVals, settings.smoothness);
-      const paddedMA = [...maVals, ...extraLabels.map(()=>null)];
+      const maPerRecord = buildMaForRaw(m.key);
+      const paddedMA = [...maPerRecord, ...extraLabels.map(()=>null)];
       datasets = [
         {
           label: m.name + ' (日次)',
@@ -1133,7 +1198,7 @@ function buildCharts() {
           borderColor: m.color + '44',
           backgroundColor: 'transparent',
           borderWidth: 1,
-          pointRadius: dailyData.length > 60 ? 0 : 2,
+          pointRadius: totalPts > 60 ? 0 : 2,
           pointBackgroundColor: m.color + '66',
           tension: 0.2,
           spanGaps: true,
@@ -1141,7 +1206,7 @@ function buildCharts() {
           order: 2
         },
         {
-          label: m.name + ' (滑らか)',
+          label: m.name + ' (平滑)',
           data: paddedMA,
           borderColor: m.color,
           backgroundColor: m.color + '22',
@@ -1258,7 +1323,16 @@ function buildChartOptions(m) {
     scales: {
       x: {
         grid: { color: '#2a2a3a' },
-        ticks: { color: '#5a5a72', font: { family: 'DM Mono', size: 10 }, maxTicksLimit: 8 }
+        ticks: {
+          color: '#5a5a72',
+          font: { family: 'DM Mono', size: 10 },
+          maxTicksLimit: 8,
+          // Labels may be "M/D HH:MM" for multi-record days — show date part only on axis
+          callback: function(val) {
+            const label = this.getLabelForValue(val);
+            return label ? label.split(' ')[0] : label;
+          }
+        }
       },
       y: {
         grid: { color: '#2a2a3a' },
